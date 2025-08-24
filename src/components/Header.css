@@ -1,0 +1,544 @@
+/* Professional Corporate Header Component */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Dark theme header */
+.dark-theme .app-header {
+  background: #1a202c;
+  border-bottom-color: #2d3748;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Header Bar */
+.header-bar {
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+}
+
+/* Corporate Brand Section */
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #1a365d;
+  border-radius: 2px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.dark-theme .app-logo {
+  background: #4299e1;
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.app-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.dark-theme .app-title {
+  color: #f7fafc;
+}
+
+.app-subtitle {
+  font-size: 0.7rem;
+  color: #718096;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.dark-theme .app-subtitle {
+  color: #a0aec0;
+}
+
+/* Corporate Desktop Navigation */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+  max-width: 500px;
+}
+
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #4a5568;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  border-bottom: 2px solid transparent;
+}
+
+.dark-theme .nav-link {
+  color: #a0aec0;
+}
+
+.nav-link:hover {
+  color: #1a365d;
+  background: transparent;
+}
+
+.dark-theme .nav-link:hover {
+  color: #e2e8f0;
+}
+
+.nav-link.active {
+  color: #1a365d;
+  background: transparent;
+  font-weight: 600;
+  border-bottom-color: #1a365d;
+}
+
+.dark-theme .nav-link.active {
+  color: #f7fafc;
+  border-bottom-color: #4299e1;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.nav-link.active .nav-icon {
+  opacity: 1;
+}
+
+.nav-label {
+  font-size: 0.8rem;
+  font-weight: inherit;
+}
+
+/* Corporate User Section */
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1a202c;
+  white-space: nowrap;
+}
+
+.dark-theme .user-name {
+  color: #f7fafc;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #718096;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.dark-theme .logout-btn {
+  color: #a0aec0;
+}
+
+.logout-btn:hover {
+  color: #e53e3e;
+}
+
+.dark-theme .logout-btn:hover {
+  color: #fc8181;
+}
+
+.settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #718096;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.dark-theme .settings-btn {
+  color: #a0aec0;
+}
+
+.settings-btn:hover {
+  color: #1a365d;
+  background: transparent;
+}
+
+.dark-theme .settings-btn:hover {
+  color: #e2e8f0;
+}
+
+.settings-btn.active {
+  color: #1a365d;
+  background: #f7fafc;
+}
+
+.dark-theme .settings-btn.active {
+  color: #f7fafc;
+  background: #2d3748;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  color: #718096;
+  transition: background-color 0.15s ease;
+}
+
+.dark-theme .avatar-placeholder {
+  background: #4a5568;
+  color: #a0aec0;
+}
+
+.avatar-placeholder:hover {
+  background: #cbd5e0;
+}
+
+.dark-theme .avatar-placeholder:hover {
+  background: #2d3748;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 8px 0;
+  box-shadow: 0 -2px 12px var(--shadow-color);
+  z-index: 1000;
+}
+
+.mobile-nav-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  list-style: none;
+  margin: 0;
+  padding: 0 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  border-radius: 8px;
+  min-width: 52px;
+  position: relative;
+}
+
+.mobile-nav-link:hover {
+  color: var(--text-primary);
+  background: var(--nav-hover);
+}
+
+.mobile-nav-link.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.mobile-nav-link.active::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--text-primary);
+  border-radius: 2px;
+}
+
+.mobile-nav-link.logout-mobile {
+  color: #e53e3e;
+}
+
+.mobile-nav-link.logout-mobile:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.dark-theme .mobile-nav-link.logout-mobile {
+  color: #fc8181;
+}
+
+.dark-theme .mobile-nav-link.logout-mobile:hover {
+  background: #2d1b1b;
+  color: #fca5a5;
+}
+
+.mobile-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mobile-nav-label {
+  font-size: 0.75rem;
+  font-weight: inherit;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Focus States for Accessibility */
+.nav-link:focus-visible,
+.mobile-nav-link:focus-visible,
+.settings-btn:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .header-container {
+    padding: 0 20px;
+  }
+  
+  .nav-list {
+    gap: 1px;
+  }
+  
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+  
+  .nav-label {
+    display: none;
+  }
+  
+  .brand-section {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hide desktop navigation and show mobile navigation */
+  .desktop-nav {
+    display: none;
+  }
+  
+  .mobile-nav {
+    display: block;
+  }
+  
+  .header-container {
+    height: 64px;
+    padding: 0 16px;
+  }
+  
+  .app-title {
+    font-size: 1.125rem;
+  }
+  
+  .app-subtitle {
+    font-size: 0.7rem;
+  }
+  
+  .user-section {
+    gap: 8px;
+  }
+  
+  .settings-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .avatar-placeholder {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    padding: 0 12px;
+  }
+  
+  .brand-section {
+    gap: 8px;
+  }
+  
+  .app-logo {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .app-title {
+    font-size: 1rem;
+  }
+  
+  .app-subtitle {
+    display: none;
+  }
+  
+  .mobile-nav-list {
+    padding: 0 8px;
+  }
+  
+  .mobile-nav-link {
+    padding: 6px 2px;
+    min-width: 48px;
+  }
+  
+  .mobile-nav-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Dark mode specific adjustments - Remove playful gradients */
+.dark-theme .app-logo {
+  background: #4299e1;
+}
+
+/* Animation for smooth transitions - More subtle for corporate feel */
+@media (prefers-reduced-motion: no-preference) {
+  .nav-link,
+  .mobile-nav-link,
+  .settings-btn {
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  
+  /* Remove playful hover transforms */
+  .nav-link:hover,
+  .mobile-nav-link:hover {
+    transform: none;
+  }
+  
+  /* Page transition loading state */
+  .app-header.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .app-header.loading .nav-link,
+  .app-header.loading .mobile-nav-link {
+    opacity: 0.5;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-link.active,
+  .mobile-nav-link.active {
+    border: 2px solid var(--text-primary);
+  }
+}

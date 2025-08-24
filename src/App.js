@@ -1,24 +1,103 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Header from './components/Header';
+import Dashboard from './components/Dashboard';
+import Income from './components/Income';
+import Expense from './components/Expense';
+import Goal from './components/Goal';
+import Reports from './components/Reports';
+import Settings from './components/Settings';
+import LandingPage from './components/LandingPage';
+import LoginPage from './components/LoginPage';
 
-function App() {
+// Main App Content Component (Protected)
+const AppContent = () => {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const { user, logout } = useAuth();
+
+  const renderPage = () => {
+    switch(currentPage) {
+      case 'dashboard':
+        return <Dashboard onNavigate={setCurrentPage} />;
+      case 'income':
+        return <Income />;
+      case 'expense':
+        return <Expense />;
+      case 'goal':
+        return <Goal />;
+      case 'reports':
+        return <Reports />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <Dashboard onNavigate={setCurrentPage} />;
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {/* Professional Header with Navigation */}
+      <Header 
+        currentPage={currentPage} 
+        onNavigate={setCurrentPage}
+        user={user}
+        onLogout={logout}
+      />
+      
+      {/* Page Content */}
+      <main className="page-content">
+        {renderPage()}
+      </main>
     </div>
+  );
+};
+
+// Authentication Router Component
+const AuthRouter = () => {
+  const { isAuthenticated, loading } = useAuth();
+  const [currentView, setCurrentView] = useState('landing'); // 'landing', 'login', 'app'
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="App loading-state">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading HealthyWallet...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If authenticated, show main app
+  if (isAuthenticated) {
+    return <AppContent />;
+  }
+
+  // If not authenticated, show landing or login based on current view
+  if (currentView === 'login') {
+    return (
+      <LoginPage 
+        onBack={() => setCurrentView('landing')}
+      />
+    );
+  }
+
+  // Default: show landing page
+  return (
+    <LandingPage 
+      onExplore={() => setCurrentView('login')}
+    />
+  );
+};
+
+// Main App Component with Authentication Provider
+function App() {
+  return (
+    <AuthProvider>
+      <AuthRouter />
+    </AuthProvider>
   );
 }
 

@@ -1,0 +1,1267 @@
+/* 🚀 REVOLUTIONARY INCOME TRACKER - EXCEPTIONAL & UNIQUE DESIGN */
+
+/* Import Revolutionary Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --income-primary: #38a169;
+  --income-gradient: linear-gradient(135deg, #38a169 0%, #48bb78 50%, #68d391 100%);
+  --glass-light: rgba(255, 255, 255, 0.95);
+  --custom-background: rgb(221 243 232);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --shadow-soft: 0 8px 32px rgba(56, 161, 105, 0.12);
+  --shadow-hover: 0 16px 48px rgba(56, 161, 105, 0.18);
+  --text-primary: #1a202c;
+  --text-secondary: #4a5568;
+  --surface-light: rgba(248, 250, 252, 0.8);
+}
+
+.income-module {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(ellipse at top, rgba(56, 161, 105, 0.02) 0%, rgba(255, 255, 255, 0.98) 70%);
+  min-height: 100vh;
+  color: var(--text-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* 🌟 Revolutionary Floating Income Particles */
+/* .income-module::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(56,161,105,0.05)"/></svg>') repeat;
+  animation: particleFloat 20s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+} */
+
+@keyframes particleFloat {
+  0% { transform: translateY(0) translateX(0); }
+  100% { transform: translateY(-100vh) translateX(20px); }
+}
+
+/* 🎭 Revolutionary Hero Header */
+.hero-header {
+  position: relative;
+  background: linear-gradient(135deg, 
+    rgba(56, 161, 105, 0.95) 0%, 
+    rgba(72, 187, 120, 0.9) 40%,
+    rgba(104, 211, 145, 0.8) 100%);
+  border-radius: 32px;
+  padding: 60px 48px;
+  margin-bottom: 64px;
+  color: white;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-soft);
+  z-index: 2;
+}
+
+/* Revolutionary Animated Background */
+.hero-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: heroGlow 4s ease-in-out infinite;
+}
+
+.hero-header::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -5%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: heroGlow 6s ease-in-out infinite reverse;
+}
+
+@keyframes heroGlow {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 900;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  animation: titlePulse 3s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1); }
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  margin: 0;
+  opacity: 0.95;
+  font-weight: 400;
+  line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hero-actions {
+  margin-left: 48px;
+}
+
+/* 🌈 Revolutionary Action Button */
+.primary-action-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 20px 40px;
+  border-radius: 20px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.primary-action-btn:hover::before {
+  left: 100%;
+}
+
+.primary-action-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(255, 255, 255, 0.2);
+}
+
+.primary-action-btn.active {
+  background: rgba(248, 250, 252, 0.95);
+  color: var(--income-primary);
+  border-color: rgba(248, 250, 252, 0.95);
+  box-shadow: 0 8px 32px rgba(56, 161, 105, 0.3);
+}
+
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 🔮 Revolutionary Financial Overview Dashboard */
+.financial-overview {
+  margin-bottom: 64px;
+  position: relative;
+  z-index: 2;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 40px 0;
+  letter-spacing: -0.025em;
+  position: relative;
+  display: inline-block;
+}
+
+/* .section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--income-gradient);
+  border-radius: 2px;
+  animation: underlineGlow 2s ease-in-out infinite;
+} */
+
+@keyframes underlineGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(56, 161, 105, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(56, 161, 105, 0.6); }
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 32px;
+}
+
+/* 🎆 Revolutionary Glassmorphism Cards */
+.overview-card {
+  background:  var(--income-gradient);
+  backdrop-filter: blur(20px);
+  color:white;
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  padding: 40px;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Revolutionary Card Hover Effects */
+.overview-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: var(--income-gradient);
+  transition: left 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.overview-card:hover::before {
+  left: 100%;
+}
+
+.overview-card:hover {
+  transform: translateY(-8px) rotateX(5deg);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(56, 161, 105, 0.3);
+
+}
+
+/* Featured Card - Revolutionary Design */
+.overview-card.featured {
+  background: var(--income-gradient);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.overview-card.featured::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: featuredGlow 3s ease-in-out infinite;
+}
+
+@keyframes featuredGlow {
+  0%, 100% { transform: scale(1) translate(20px, -20px); opacity: 0.5; }
+  50% { transform: scale(1.3) translate(10px, -10px); opacity: 0.8; }
+}
+
+.overview-card.featured:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(56, 161, 105, 0.3);
+}
+
+.card-content {
+  position: relative;
+  color: white;
+  /* z-index: 3; */
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.overview-card.featured .card-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 🌌 Revolutionary Floating Icons */
+.card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  position: relative;
+  animation: iconFloat 4s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(5deg); }
+}
+
+.card-icon.primary {
+  background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+  box-shadow: 0 8px 24px rgba(56, 161, 105, 0.3);
+}
+
+.card-icon.secondary {
+  background: linear-gradient(135deg, #4299e1 0%, #63b3ed 100%);
+  box-shadow: 0 8px 24px rgba(66, 153, 225, 0.3);
+}
+
+.card-icon.tertiary {
+  background: linear-gradient(135deg, #805ad5 0%, #b794f6 100%);
+  box-shadow: 0 8px 24px rgba(128, 90, 213, 0.3);
+}
+
+.overview-card.featured .card-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.card-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 🔥 Revolutionary Card Values */
+.card-value {
+  font-size: 38px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: valueShimmer 3s ease-in-out infinite;
+}
+
+@keyframes valueShimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1); }
+}
+
+.overview-card.featured .card-value {
+  color: white;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.card-trend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.card-trend.positive {
+  color: var(--income-primary);
+}
+
+.card-trend.neutral {
+  color: var(--text);
+}
+
+.overview-card.featured .card-trend {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.card-trend svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* 📝 Compact Quick Add Form - Standard Design */
+.quick-add-section {
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 2;
+}
+
+.quick-add-card {
+  background: var(--glass-light);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(56, 161, 105, 0.08);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.quick-add-card:hover {
+  box-shadow: 0 6px 24px rgba(56, 161, 105, 0.12);
+  transform: translateY(-2px);
+}
+
+.quick-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quick-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.form-title-compact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.form-icon {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+  color: var(--income-primary);
+}
+
+/* 📦 Compact Grid Layout */
+.quick-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.input-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.input-wrapper-compact {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 12px;
+  color: var(--income-primary);
+  font-weight: 700;
+  font-size: 14px;
+  z-index: 2;
+}
+
+.input-compact-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(56, 161, 105, 0.2);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
+}
+
+.input-compact-field.amount {
+  padding-left: 32px;
+  font-weight: 700;
+}
+
+.input-compact-field:focus {
+  outline: none;
+  border-color: var(--income-primary);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
+  transform: translateY(-1px);
+}
+
+.input-compact-field::placeholder {
+  color: rgba(74, 85, 104, 0.5);
+  font-weight: 400;
+}
+
+/* 🚀 Compact Submit Button */
+.action-field {
+  align-self: end;
+}
+
+.submit-compact {
+  background: var(--income-gradient);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(56, 161, 105, 0.2);
+  height: 44px;
+}
+
+.submit-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 161, 105, 0.3);
+}
+
+.submit-compact:active {
+  transform: translateY(-1px);
+}
+
+.submit-compact svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5;
+}
+
+/* 📱 Compact Form Responsive */
+@media (max-width: 768px) {
+  .quick-form-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .input-compact:nth-child(1) {
+    grid-column: 1 / -1;
+  }
+  
+  .action-field {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+  }
+  
+  .submit-compact {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .quick-add-card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  .input-compact {
+    grid-column: 1;
+  }
+}
+
+/* 🔮 Revolutionary Records Visualization */
+.records-section {
+  margin-bottom: 64px;
+  position: relative;
+  z-index: 2;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+@keyframes sectionPulse {
+  0%, 100% { width: 100px; opacity: 0.6; }
+  50% { width: 150px; opacity: 1; }
+}
+
+.section-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.record-count {
+  background: var(--income-gradient);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(56, 161, 105, 0.3);
+  animation: countFloat 4s ease-in-out infinite;
+}
+
+@keyframes countFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* 🎆 Revolutionary Empty State */
+.empty-state {
+  background: var(--glass-light);
+  backdrop-filter: blur(20px);
+  border: 2px dashed rgba(56, 161, 105, 0.3);
+  border-radius: 32px;
+  padding: 80px 48px;
+  text-align: center;
+  color: var(--text-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.empty-state::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(56, 161, 105, 0.05), transparent);
+  animation: emptyShimmer 3s ease-in-out infinite;
+}
+
+@keyframes emptyShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.empty-illustration {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.empty-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  background: var(--income-gradient);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  position: relative;
+  animation: emptyIconFloat 6s ease-in-out infinite;
+  box-shadow: 0 16px 48px rgba(56, 161, 105, 0.2);
+}
+
+@keyframes emptyIconFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(2deg); }
+  66% { transform: translateY(-8px) rotate(-2deg); }
+}
+
+.empty-icon::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: iconGlint 4s ease-in-out infinite;
+}
+
+@keyframes iconGlint {
+  0%, 100% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.empty-icon svg {
+  width: 48px;
+  height: 48px;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.empty-content {
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.empty-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+  letter-spacing: -0.025em;
+}
+
+.empty-description {
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0 0 40px 0;
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
+.empty-action-btn {
+  background: var(--income-gradient);
+  color: white;
+  border: none;
+  padding: 20px 40px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(56, 161, 105, 0.3);
+}
+
+.empty-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.empty-action-btn:hover::before {
+  left: 100%;
+}
+
+.empty-action-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 16px 48px rgba(56, 161, 105, 0.4);
+}
+
+/* 🌌 Revolutionary Records Grid */
+.records-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 32px;
+}
+
+.record-card {
+  background: var(--custom-background);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Revolutionary Card Hover Effects */
+.record-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--income-gradient);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.record-card::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(56, 161, 105, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: cardGlow 3s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+@keyframes cardGlow {
+  0%, 100% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 0.6; }
+}
+
+.record-card:hover::before {
+  opacity: 1;
+}
+
+.record-card:hover::after {
+  opacity: 1;
+}
+
+.record-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(56, 161, 105, 0.3);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.record-main {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.record-amount {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--income-primary);
+  margin-bottom: 12px;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 4px rgba(56, 161, 105, 0.1);
+  animation: amountShimmer 4s ease-in-out infinite;
+}
+
+@keyframes amountShimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1); }
+}
+
+.record-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.record-source {
+  font-size: 18px;
+  color: var(--text-primary);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
+
+.record-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.date-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  opacity: 0.7;
+}
+
+/* 🎆 Revolutionary Action Buttons */
+.record-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.action-btn:hover::before {
+  opacity: 1;
+}
+
+.action-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+}
+
+.action-btn.edit:hover {
+  background: rgba(26, 54, 93, 0.1);
+  color: #1a365d;
+  transform: scale(1.1) rotate(5deg);
+  border-color: rgba(26, 54, 93, 0.3);
+  box-shadow: 0 8px 24px rgba(26, 54, 93, 0.2);
+}
+
+.action-btn.delete:hover {
+  background: rgba(229, 62, 62, 0.1);
+  color: #e53e3e;
+  transform: scale(1.1) rotate(-5deg);
+  border-color: rgba(229, 62, 62, 0.3);
+  box-shadow: 0 8px 24px rgba(229, 62, 62, 0.2);
+}
+
+/* 📱 Revolutionary Responsive Design */
+@media (max-width: 1024px) {
+  .income-module {
+    padding: 32px 20px;
+  }
+  
+  .hero-header {
+    padding: 48px 32px;
+    margin-bottom: 48px;
+  }
+  
+  .hero-content {
+    flex-direction: column;
+    gap: 32px;
+    text-align: center;
+  }
+  
+  .hero-actions {
+    margin-left: 0;
+  }
+  
+  .hero-title {
+    font-size: 36px;
+  }
+  
+  .overview-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  
+  .records-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+  }
+  
+  .quick-form-grid {
+    grid-template-columns: 1fr 1fr auto;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .income-module {
+    padding: 24px 16px;
+  }
+  
+  .hero-header {
+    padding: 40px 24px;
+    margin-bottom: 40px;
+    border-radius: 24px;
+  }
+  
+  .hero-title {
+    font-size: 32px;
+  }
+  
+  .hero-subtitle {
+    font-size: 18px;
+  }
+  
+  .primary-action-btn {
+    padding: 16px 32px;
+    font-size: 16px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .financial-overview,
+  .quick-add-section,
+  .records-section {
+    margin-bottom: 40px;
+  }
+  
+  .section-title {
+    font-size: 24px;
+  }
+  
+  .overview-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .overview-card {
+    padding: 32px 24px;
+  }
+  
+  .card-value {
+    font-size: 32px;
+  }
+  
+  .records-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .empty-state {
+    padding: 64px 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .income-module {
+    padding: 20px 12px;
+  }
+  
+  .hero-header {
+    padding: 32px 20px;
+    margin-bottom: 32px;
+    border-radius: 20px;
+  }
+  
+  .hero-title {
+    font-size: 28px;
+  }
+  
+  .hero-subtitle {
+    font-size: 16px;
+  }
+  
+  .primary-action-btn {
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+  
+  .overview-card {
+    padding: 24px 20px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .card-icon {
+    align-self: flex-end;
+  }
+  
+  .card-value {
+    font-size: 28px;
+  }
+  
+  .record-card {
+    padding: 24px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    border-radius: 20px;
+  }
+  
+  .record-actions {
+    align-self: flex-end;
+  }
+  
+  .record-amount {
+    font-size: 24px;
+  }
+  
+  .empty-state {
+    padding: 48px 24px;
+    border-radius: 24px;
+  }
+  
+  .empty-title {
+    font-size: 24px;
+  }
+  
+  .empty-description {
+    font-size: 16px;
+  }
+  
+  .empty-action-btn {
+    padding: 16px 32px;
+    font-size: 16px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .empty-icon {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .empty-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .financial-overview,
+  .quick-add-section,
+  .records-section {
+    margin-bottom: 32px;
+  }
+}
+
+/* 🌌 AI Insights Integration */
+.income-module .ai-insight-container {
+  margin: 64px 0;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .income-module .ai-insight-container {
+    margin: 48px 0;
+  }
+}
+
+/* 🌟 Revolutionary Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 🌈 High Contrast Mode */
+@media (prefers-contrast: high) {
+  .overview-card,
+  .form-container,
+  .record-card {
+    border-width: 2px;
+    border-color: var(--text-primary);
+  }
+  
+  .hero-header {
+    border: 2px solid white;
+  }
+  
+  .btn-icon,
+  .card-icon svg,
+  .action-btn svg {
+    stroke-width: 3;
+  }
+}
+
+/* 🌅 Revolutionary Print Styles */
+@media print {
+  .income-module {
+    background: white;
+    color: black;
+  }
+  
+  .hero-header {
+    background: #f8fafc;
+    color: black;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .primary-action-btn,
+  .action-btn,
+  .empty-action-btn {
+    display: none;
+  }
+  
+  .overview-card,
+  .form-container,
+  .record-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    break-inside: avoid;
+  }
+}

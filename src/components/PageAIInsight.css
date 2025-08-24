@@ -1,0 +1,186 @@
+/* Page AI Insight - Compact Design */
+.page-ai-insight {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-ai-insight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  transition: background 0.2s ease;
+}
+
+.page-ai-insight.warning::before {
+  background: #f56565;
+}
+
+.page-ai-insight.success::before {
+  background: #48bb78;
+}
+
+.page-ai-insight.motivation::before {
+  background: #ed8936;
+}
+
+.page-ai-insight.insight::before {
+  background: #4299e1;
+}
+
+.page-ai-insight.tip::before {
+  background: #9f7aea;
+}
+
+.page-ai-insight:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Compact Content Layout */
+.insight-compact-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.insight-compact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  color: white;
+}
+
+.insight-compact-icon.warning {
+  background: #f56565;
+}
+
+.insight-compact-icon.success {
+  background: #48bb78;
+}
+
+.insight-compact-icon.motivation {
+  background: #ed8936;
+}
+
+.insight-compact-icon.insight {
+  background: #4299e1;
+}
+
+.insight-compact-icon.tip {
+  background: #9f7aea;
+}
+
+.insight-compact-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.insight-compact-message {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.insight-compact-suggestion {
+  font-size: 0.8rem;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Dark Theme Support */
+.dark-theme .page-ai-insight {
+  background: #2d3748;
+  border-color: #4a5568;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .page-ai-insight:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme .insight-compact-message {
+  color: #f7fafc;
+}
+
+.dark-theme .insight-compact-suggestion {
+  color: #e2e8f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-ai-insight {
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .insight-compact-content {
+    gap: 10px;
+  }
+  
+  .insight-compact-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .insight-compact-message {
+    font-size: 0.85rem;
+  }
+  
+  .insight-compact-suggestion {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-ai-insight {
+    padding: 12px;
+  }
+  
+  .insight-compact-content {
+    gap: 8px;
+  }
+  
+  .insight-compact-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Animation */
+.page-ai-insight {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Accessibility */
+.page-ai-insight:focus-within {
+  outline: 2px solid #4299e1;
+  outline-offset: 2px;
+}
