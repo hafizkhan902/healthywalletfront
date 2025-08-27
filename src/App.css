@@ -35,6 +35,18 @@
   box-sizing: border-box;
 }
 
+/* Enhanced smooth scrolling for better user experience */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure smooth scrolling works on all browsers */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -60,6 +72,20 @@ body {
   .page-content {
     min-height: calc(100vh - 64px - 76px); /* Header height + mobile nav height */
     padding-bottom: 76px; /* Space for mobile bottom nav */
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    min-height: calc(100vh - 56px - 68px); /* Smaller header + mobile nav height */
+    padding-bottom: 68px; /* Adjusted space for mobile bottom nav */
+  }
+}
+
+@media (max-width: 360px) {
+  .page-content {
+    min-height: calc(100vh - 52px - 64px); /* Very small header + mobile nav height */
+    padding-bottom: 64px; /* Adjusted space for very small mobile nav */
   }
 }
 

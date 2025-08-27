@@ -1,24 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './Expense.css';
 import PageAIInsight from './PageAIInsight';
+import { useMutation, usePaginatedAPI } from '../hooks/useAPI';
+import { expenseAPI } from '../services/api';
+import { scrollToForm } from '../utils/scrollUtils';
 
 const Expense = () => {
-  // Predefined categories for MVP
-  const categories = ['Food', 'Bills', 'Transport', 'Entertainment', 'Other'];
-
-  // State for expense records
-  const [expenses, setExpenses] = useState([
-    { id: 1, amount: 45.50, category: 'Food', date: '2024-01-20', note: 'Lunch at restaurant', user_id: 1 },
-    { id: 2, amount: 120.00, category: 'Bills', date: '2024-01-18', note: 'Electricity bill', user_id: 1 },
-    { id: 3, amount: 25.00, category: 'Transport', date: '2024-01-17', note: 'Gas for car', user_id: 1 },
-    { id: 4, amount: 60.00, category: 'Entertainment', date: '2024-01-15', note: 'Movie tickets', user_id: 1 },
-    { id: 5, amount: 89.99, category: 'Bills', date: '2024-01-12', note: 'Internet bill', user_id: 1 },
-  ]);
+  // Predefined categories for MVP (matching backend validation)
+  const categories = [
+    { value: 'food', label: 'Food' },
+    { value: 'bills', label: 'Bills' },
+    { value: 'transport', label: 'Transport' },
+    { value: 'entertainment', label: 'Entertainment' },
+    { value: 'shopping', label: 'Shopping' },
+    { value: 'healthcare', label: 'Healthcare' },
+    { value: 'education', label: 'Education' },
+    { value: 'travel', label: 'Travel' },
+    { value: 'other', label: 'Other' }
+  ];
 
   // State for form
   const [formData, setFormData] = useState({
     amount: '',
-    category: 'Food',
+    category: 'food',
     date: new Date().toISOString().split('T')[0],
     note: ''
   });
@@ -29,9 +33,73 @@ const Expense = () => {
   const [filterPeriod, setFilterPeriod] = useState('all'); // all, today, monthly
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Calculate filtered expenses
+  // Memoized callbacks to prevent re-renders
+  const handleExpenseError = useCallback((error) => {
+    console.error('Failed to fetch expenses:', error);
+  }, []);
+
+  // Fetch expense data from backend with pagination
+  const {
+    data: expenses,
+    loading: expensesLoading,
+    error: expensesError,
+    fetchData: refetchExpenses
+  } = usePaginatedAPI(expenseAPI.getExpenses, { 
+    page: 1, 
+    limit: 10,
+    sortBy: 'date',
+    sortOrder: 'desc'
+  }, {
+    onError: handleExpenseError
+  });
+
+  // Memoized mutation callbacks
+  const handleCreateSuccess = useCallback(() => {
+    refetchExpenses();
+    setShowForm(false);
+    setFormData({
+      amount: '',
+      category: 'food',
+      date: new Date().toISOString().split('T')[0],
+      note: ''
+    });
+  }, [refetchExpenses]);
+
+  const handleUpdateSuccess = useCallback(() => {
+    refetchExpenses();
+    setEditingId(null);
+    setShowForm(false);
+  }, [refetchExpenses]);
+
+  const handleDeleteSuccess = useCallback(() => {
+    refetchExpenses();
+  }, [refetchExpenses]);
+
+  // Mutation for creating new expense
+  const {
+    mutate: createExpenseAPI
+  } = useMutation(expenseAPI.createExpense, {
+    onSuccess: handleCreateSuccess
+  });
+
+  // Mutation for updating expense
+  const {
+    mutate: updateExpenseAPI
+  } = useMutation(expenseAPI.updateExpense, {
+    onSuccess: handleUpdateSuccess
+  });
+
+  // Mutation for deleting expense
+  const {
+    mutate: deleteExpenseAPI
+  } = useMutation(expenseAPI.deleteExpense, {
+    onSuccess: handleDeleteSuccess
+  });
+
+  // Calculate filtered expenses with safety checks
   const getFilteredExpenses = () => {
-    let filtered = expenses;
+    const expensesArray = Array.isArray(expenses) ? expenses : [];
+    let filtered = expensesArray;
 
     // Filter by period
     const today = new Date().toISOString().split('T')[0];
@@ -40,7 +108,7 @@ const Expense = () => {
     if (filterPeriod === 'today') {
       filtered = filtered.filter(expense => expense.date === today);
     } else if (filterPeriod === 'monthly') {
-      filtered = filtered.filter(expense => expense.date.startsWith(currentMonth));
+      filtered = filtered.filter(expense => expense.date && expense.date.startsWith(currentMonth));
     }
 
     // Filter by category
@@ -51,23 +119,29 @@ const Expense = () => {
     return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 
-  // Calculate summary statistics
+  // Calculate summary statistics with safety checks
   const filteredExpenses = getFilteredExpenses();
-  const totalAmount = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const monthlyExpenses = expenses.filter(expense => 
-    expense.date.startsWith(new Date().toISOString().slice(0, 7))
+  const totalAmount = filteredExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+  const expensesArray = Array.isArray(expenses) ? expenses : [];
+  const monthlyExpenses = expensesArray.filter(expense => 
+    expense.date && expense.date.startsWith(new Date().toISOString().slice(0, 7))
   );
-  const monthlyTotal = monthlyExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const monthlyTotal = monthlyExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   
-  // Category breakdown
-  const categoryTotals = categories.map(category => {
-    const categoryExpenses = filteredExpenses.filter(exp => exp.category === category);
-    const total = categoryExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-    return { category, total, count: categoryExpenses.length };
+  // Category breakdown with safety checks
+  const categoryTotals = categories.map(categoryObj => {
+    const categoryExpenses = filteredExpenses.filter(exp => exp.category === categoryObj.value);
+    const total = categoryExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+    return { 
+      category: categoryObj.value, 
+      label: categoryObj.label, 
+      total, 
+      count: categoryExpenses.length 
+    };
   }).filter(item => item.total > 0);
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.amount || !formData.category || !formData.date) {
@@ -80,59 +154,56 @@ const Expense = () => {
       return;
     }
 
-    if (editingId) {
-      // Update existing expense
-      setExpenses(expenses.map(expense => 
-        expense.id === editingId 
-          ? { 
-              ...expense, 
-              amount: parseFloat(formData.amount), 
-              category: formData.category, 
-              date: formData.date,
-              note: formData.note 
-            }
-          : expense
-      ));
-      setEditingId(null);
-    } else {
-      // Add new expense
-      const newExpense = {
-        id: Date.now(),
+    try {
+      const expenseData = {
         amount: parseFloat(formData.amount),
         category: formData.category,
         date: formData.date,
-        note: formData.note,
-        user_id: 1
+        description: formData.note || ''
       };
-      setExpenses([...expenses, newExpense]);
-    }
 
-    // Reset form
-    setFormData({
-      amount: '',
-      category: 'Food',
-      date: new Date().toISOString().split('T')[0],
-      note: ''
-    });
-    setShowForm(false);
+      if (editingId) {
+        // Update existing expense via API
+        await updateExpenseAPI(editingId, expenseData);
+      } else {
+        // Add new expense via API
+        await createExpenseAPI(expenseData);
+      }
+    } catch (error) {
+      console.error('Failed to save expense:', error);
+      alert('Failed to save expense. Please try again.');
+    }
   };
 
-  // Handle edit
+  // Handle edit with auto-scroll
   const handleEdit = (expense) => {
     setFormData({
       amount: expense.amount.toString(),
       category: expense.category,
-      date: expense.date,
-      note: expense.note || ''
+      date: expense.date ? new Date(expense.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      note: expense.description || expense.note || ''
     });
-    setEditingId(expense.id);
+    setEditingId(expense._id || expense.id); // Handle both _id and id
     setShowForm(true);
+    
+    // Scroll to form after state update
+    setTimeout(() => {
+      scrollToForm('.quick-add-section', {
+        block: 'center',
+        offset: -50
+      });
+    }, 100);
   };
 
   // Handle delete
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this expense record?')) {
-      setExpenses(expenses.filter(expense => expense.id !== id));
+      try {
+        await deleteExpenseAPI(id);
+      } catch (error) {
+        console.error('Failed to delete expense:', error);
+        alert('Failed to delete expense. Please try again.');
+      }
     }
   };
 
@@ -140,7 +211,7 @@ const Expense = () => {
   const handleCancel = () => {
     setFormData({
       amount: '',
-      category: 'Food',
+      category: 'food',
       date: new Date().toISOString().split('T')[0],
       note: ''
     });
@@ -148,9 +219,25 @@ const Expense = () => {
     setShowForm(false);
   };
 
-  // Format currency
+  // Handle show form with auto-scroll
+  const handleShowForm = () => {
+    setShowForm(true);
+    // Scroll to form after state update
+    setTimeout(() => {
+      scrollToForm('.quick-add-section', {
+        block: 'center',
+        offset: -50
+      });
+    }, 100);
+  };
+
+  // Format currency with safety checks
   const formatCurrency = (amount) => {
-    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    const numericAmount = Number(amount);
+    if (isNaN(numericAmount)) {
+      return '$0.00';
+    }
+    return `$${numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   };
 
   // Format date
@@ -165,7 +252,7 @@ const Expense = () => {
   // Get category icon
   const getCategoryIcon = (category) => {
     const icons = {
-      'Food': (
+      'food': (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
           <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
@@ -174,7 +261,7 @@ const Expense = () => {
           <line x1="14" y1="1" x2="14" y2="4"></line>
         </svg>
       ),
-      'Bills': (
+      'bills': (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14,2 14,8 20,8"></polyline>
@@ -183,7 +270,7 @@ const Expense = () => {
           <polyline points="10,9 9,9 8,9"></polyline>
         </svg>
       ),
-      'Transport': (
+      'transport': (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
           <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
@@ -191,21 +278,76 @@ const Expense = () => {
           <path d="M9 17v-6h4v6"></path>
         </svg>
       ),
-      'Entertainment': (
+      'entertainment': (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polygon points="23 7 16 12 23 17 23 7"></polygon>
           <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
         </svg>
       ),
-      'Other': (
+      'shopping': (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+      ),
+      'healthcare': (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+      ),
+      'education': (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+      ),
+      'travel': (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="7.5,4.21 12,6.81 16.5,4.21"></polyline>
+          <polyline points="7.5,19.79 7.5,14.6 3,12"></polyline>
+          <polyline points="21,12 16.5,14.6 16.5,19.79"></polyline>
+          <polyline points="12,22.08 12,17"></polyline>
+        </svg>
+      ),
+      'other': (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
         </svg>
       )
     };
-    return icons[category] || icons['Other'];
+    return icons[category] || icons['other'];
   };
+
+  // Loading state
+  if (expensesLoading && !expensesArray.length) {
+    return (
+      <div className="expense-module">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading your expense data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (expensesError) {
+    return (
+      <div className="expense-module">
+        <div className="error-container">
+          <div className="error-icon">⚠️</div>
+          <h3>Unable to Load Expense Data</h3>
+          <p>{expensesError}</p>
+          <button onClick={refetchExpenses} className="retry-button">
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="expense-module">
@@ -219,7 +361,7 @@ const Expense = () => {
           <div className="hero-actions">
             <button 
               className={`primary-action-btn ${showForm ? 'active' : ''}`}
-              onClick={() => showForm ? handleCancel() : setShowForm(true)}
+              onClick={() => showForm ? handleCancel() : handleShowForm()}
             >
               {showForm ? (
                 <>
@@ -352,8 +494,8 @@ const Expense = () => {
                     className="input-compact-field"
                     required
                   >
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                    {categories.map(categoryObj => (
+                      <option key={categoryObj.value} value={categoryObj.value}>{categoryObj.label}</option>
                     ))}
                   </select>
                 </div>
@@ -421,8 +563,8 @@ const Expense = () => {
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
               <option value="all">All Categories</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
+              {categories.map(categoryObj => (
+                <option key={categoryObj.value} value={categoryObj.value}>{categoryObj.label}</option>
               ))}
             </select>
           </div>
@@ -453,7 +595,7 @@ const Expense = () => {
               <p className="empty-description">Start tracking your expenses by adding your first spending record. This will help you monitor and optimize your financial health.</p>
               <button 
                 className="empty-action-btn"
-                onClick={() => setShowForm(true)}
+                onClick={handleShowForm}
               >
                 <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -466,13 +608,13 @@ const Expense = () => {
         ) : (
           <div className="records-grid">
             {filteredExpenses.map(expense => (
-              <div key={expense.id} className="record-card">
+              <div key={expense._id || expense.id} className="record-card">
                 <div className="record-main">
                   <div className="record-amount">{formatCurrency(expense.amount)}</div>
                   <div className="record-details">
                     <div className="record-category">
                       <span className="category-icon">{getCategoryIcon(expense.category)}</span>
-                      {expense.category}
+                      {categories.find(cat => cat.value === expense.category)?.label || expense.category}
                     </div>
                     <div className="record-date">
                       <svg className="date-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -483,8 +625,8 @@ const Expense = () => {
                       </svg>
                       {formatDate(expense.date)}
                     </div>
-                    {expense.note && (
-                      <div className="record-note">{expense.note}</div>
+                    {(expense.description || expense.note) && (
+                      <div className="record-note">{expense.description || expense.note}</div>
                     )}
                   </div>
                 </div>
@@ -501,7 +643,7 @@ const Expense = () => {
                   </button>
                   <button 
                     className="action-btn delete"
-                    onClick={() => handleDelete(expense.id)}
+                    onClick={() => handleDelete(expense._id || expense.id)}
                     title="Delete expense record"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

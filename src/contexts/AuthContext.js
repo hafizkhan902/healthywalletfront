@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -15,123 +16,133 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Prevent multiple concurrent auth checks
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
+  
+  // Track if auth has been initialized to prevent multiple checks
+  const [authInitialized, setAuthInitialized] = useState(false);
+  
+  // Use ref to prevent rapid successive calls
+  const lastAuthCheck = useRef(0);
+
   // Check authentication status on app load
   useEffect(() => {
-    const checkAuthStatus = () => {
+    const checkAuthStatus = async () => {
+      const now = Date.now();
+      
+      if (isCheckingAuth || authInitialized) {
+        console.log('🔄 Auth check already in progress or completed, skipping...');
+        return;
+      }
+      
+      // Throttle auth checks to max once per 2 seconds
+      if (now - lastAuthCheck.current < 2000) {
+        console.log('🔄 Auth check throttled, too soon since last check');
+        return;
+      }
+      
+      lastAuthCheck.current = now;
+      setIsCheckingAuth(true);
       try {
-        const authData = localStorage.getItem('healthywallet-auth');
-        if (authData) {
-          const { isLoggedIn, userData, timestamp } = JSON.parse(authData);
-          
-          // Check if session is valid (24 hours)
-          const currentTime = new Date().getTime();
-          const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-          
-          if (isLoggedIn && (currentTime - timestamp) < sessionDuration) {
-            setIsAuthenticated(true);
-            setUser(userData);
-          } else {
-            // Session expired, clear storage
-            localStorage.removeItem('healthywallet-auth');
+        const token = localStorage.getItem('authToken');
+        const userData = localStorage.getItem('userData');
+        
+        if (token && userData) {
+          try {
+            // Verify token with backend
+            const response = await authAPI.getMe();
+            if (response.success) {
+              setIsAuthenticated(true);
+              setUser(response.data);
+            } else {
+              // Token invalid, clear storage
+              authAPI.logout();
+              setIsAuthenticated(false);
+              setUser(null);
+            }
+          } catch (error) {
+            // Token expired or invalid
+            console.error('Token validation failed:', error);
+            authAPI.logout();
             setIsAuthenticated(false);
             setUser(null);
           }
+        } else {
+          setIsAuthenticated(false);
+          setUser(null);
         }
       } catch (error) {
         console.error('Error checking auth status:', error);
-        localStorage.removeItem('healthywallet-auth');
+        authAPI.logout();
         setIsAuthenticated(false);
         setUser(null);
       } finally {
         setLoading(false);
+        setIsCheckingAuth(false);
+        setAuthInitialized(true);
       }
     };
 
     checkAuthStatus();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
-  // Dummy login function
+  // Real login function using backend API
   const login = async (email, password) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setLoading(true);
+      const response = await authAPI.login({ email, password });
       
-      // Dummy validation - accept any email with password "demo123"
-      if (password === 'demo123' && email.includes('@')) {
-        const userData = {
-          id: 1,
-          email: email,
-          name: email.split('@')[0].replace(/[^a-zA-Z]/g, ''),
-          joinDate: new Date().toISOString()
-        };
-
-        const authData = {
-          isLoggedIn: true,
-          userData: userData,
-          timestamp: new Date().getTime()
-        };
-
-        localStorage.setItem('healthywallet-auth', JSON.stringify(authData));
+      if (response.success) {
         setIsAuthenticated(true);
-        setUser(userData);
-        return { success: true, user: userData };
+        setUser(response.data.user);
+        return { success: true, user: response.data.user };
       } else {
         return { 
           success: false, 
-          error: 'Invalid credentials. Use any email with password: demo123' 
+          error: response.message || 'Login failed' 
         };
       }
     } catch (error) {
       return { 
         success: false, 
-        error: 'Login failed. Please try again.' 
+        error: error.message || 'Login failed. Please try again.' 
       };
+    } finally {
+      setLoading(false);
     }
   };
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('healthywallet-auth');
+    authAPI.logout();
     setIsAuthenticated(false);
     setUser(null);
   };
 
-  // Register function (dummy)
+  // Real register function using backend API
   const register = async (name, email, password) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setLoading(true);
+      const response = await authAPI.register({ name, email, password });
       
-      // Dummy validation
-      if (email.includes('@') && password.length >= 6) {
-        const userData = {
-          id: Date.now(),
-          email: email,
-          name: name,
-          joinDate: new Date().toISOString()
-        };
-
-        const authData = {
-          isLoggedIn: true,
-          userData: userData,
-          timestamp: new Date().getTime()
-        };
-
-        localStorage.setItem('healthywallet-auth', JSON.stringify(authData));
+      if (response.success) {
         setIsAuthenticated(true);
-        setUser(userData);
-        return { success: true, user: userData };
+        setUser(response.data.user);
+        return { success: true, user: response.data.user };
       } else {
         return { 
           success: false, 
-          error: 'Please provide a valid email and password (min 6 characters)' 
+          error: response.message || 'Registration failed' 
         };
       }
     } catch (error) {
       return { 
         success: false, 
-        error: 'Registration failed. Please try again.' 
+        error: error.message || 'Registration failed. Please try again.' 
       };
+    } finally {
+      setLoading(false);
     }
   };
 

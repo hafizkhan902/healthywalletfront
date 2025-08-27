@@ -1,14 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './Income.css';
 import PageAIInsight from './PageAIInsight';
+import { useMutation, usePaginatedAPI } from '../hooks/useAPI';
+import { incomeAPI } from '../services/api';
+import { scrollToForm } from '../utils/scrollUtils';
 
 const Income = () => {
-  // State for income records
-  const [incomes, setIncomes] = useState([
-    { id: 1, amount: 3500.00, source: 'Salary', date: '2024-01-15', user_id: 1 },
-    { id: 2, amount: 500.00, source: 'Freelance Project', date: '2024-01-10', user_id: 1 },
-    { id: 3, amount: 1420.00, source: 'Investment Returns', date: '2024-01-05', user_id: 1 },
-  ]);
+  // Fetch income data from backend with pagination
+  const {
+    data: incomes,
+    loading: incomesLoading,
+    error: incomesError,
+    fetchData: refetchIncomes
+  } = usePaginatedAPI(incomeAPI.getIncomes, { 
+    page: 1, 
+    limit: 10,
+    sortBy: 'date',
+    sortOrder: 'desc'
+  }, {
+    onError: (error) => {
+      console.error('Failed to fetch incomes:', error);
+    }
+  });
+
+  // Fetch income summary (for future use)
+  // const {
+  //   data: incomeSummary,
+  //   loading: summaryLoading
+  // } = useAPI(incomeAPI.getIncomeSummary);
+
+  // Mutation for creating new income
+  const {
+    mutate: createIncomeAPI
+    // loading: createLoading,
+    // error: createError
+  } = useMutation(incomeAPI.createIncome, {
+    onSuccess: () => {
+      refetchIncomes();
+      setShowForm(false);
+      setFormData({
+        amount: '',
+        source: '',
+        date: new Date().toISOString().split('T')[0]
+      });
+    }
+  });
+
+  // Mutation for updating income
+  const {
+    mutate: updateIncomeAPI
+    // loading: updateLoading
+  } = useMutation(incomeAPI.updateIncome, {
+    onSuccess: () => {
+      refetchIncomes();
+      setEditingId(null);
+      setShowForm(false);
+    }
+  });
+
+  // Mutation for deleting income
+  const {
+    mutate: deleteIncomeAPI
+    // loading: deleteLoading
+  } = useMutation(incomeAPI.deleteIncome, {
+    onSuccess: () => {
+      refetchIncomes();
+    }
+  });
 
   // State for form
   const [formData, setFormData] = useState({
@@ -21,16 +79,23 @@ const Income = () => {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  // Calculate monthly summary
+  // Calculate monthly summary with safe array handling
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
-  const monthlyIncomes = incomes.filter(income => 
-    income.date.startsWith(currentMonth)
+  const incomesArray = Array.isArray(incomes) ? incomes : [];
+  
+  // Debug logging (temporary)
+  if (incomesArray.length > 0) {
+    console.log('✅ Income data loaded:', incomesArray.length, 'records');
+  }
+  
+  const monthlyIncomes = incomesArray.filter(income => 
+    income.date && income.date.startsWith(currentMonth)
   );
-  const monthlyTotal = monthlyIncomes.reduce((sum, income) => sum + income.amount, 0);
-  const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+  const monthlyTotal = monthlyIncomes.reduce((sum, income) => sum + (income.amount || 0), 0);
+  const totalIncome = incomesArray.reduce((sum, income) => sum + (income.amount || 0), 0);
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.amount || !formData.source || !formData.date) {
@@ -43,50 +108,56 @@ const Income = () => {
       return;
     }
 
-    if (editingId) {
-      // Update existing income
-      setIncomes(incomes.map(income => 
-        income.id === editingId 
-          ? { ...income, amount: parseFloat(formData.amount), source: formData.source, date: formData.date }
-          : income
-      ));
-      setEditingId(null);
-    } else {
-      // Add new income
-      const newIncome = {
-        id: Date.now(), // Simple ID generation for MVP
+    try {
+      const incomeData = {
         amount: parseFloat(formData.amount),
         source: formData.source,
+        category: 'salary', // Default category
         date: formData.date,
-        user_id: 1 // Hard-coded for MVP
+        description: formData.source
       };
-      setIncomes([...incomes, newIncome]);
-    }
 
-    // Reset form
-    setFormData({
-      amount: '',
-      source: '',
-      date: new Date().toISOString().split('T')[0]
-    });
-    setShowForm(false);
+      if (editingId) {
+        // Update existing income via API
+        await updateIncomeAPI(editingId, incomeData);
+      } else {
+        // Add new income via API
+        await createIncomeAPI(incomeData);
+      }
+    } catch (error) {
+      console.error('Failed to save income:', error);
+      alert('Failed to save income. Please try again.');
+    }
   };
 
-  // Handle edit
+  // Handle edit with auto-scroll
   const handleEdit = (income) => {
     setFormData({
       amount: income.amount.toString(),
       source: income.source,
-      date: income.date
+      date: income.date ? new Date(income.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     });
-    setEditingId(income.id);
+    setEditingId(income._id || income.id); // Handle both _id and id
     setShowForm(true);
+    
+    // Scroll to form after state update
+    setTimeout(() => {
+      scrollToForm('.quick-add-section', {
+        block: 'center',
+        offset: -50
+      });
+    }, 100);
   };
 
   // Handle delete
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this income record?')) {
-      setIncomes(incomes.filter(income => income.id !== id));
+      try {
+        await deleteIncomeAPI(id);
+      } catch (error) {
+        console.error('Failed to delete income:', error);
+        alert('Failed to delete income. Please try again.');
+      }
     }
   };
 
@@ -101,9 +172,25 @@ const Income = () => {
     setShowForm(false);
   };
 
-  // Format currency
+  // Handle show form with auto-scroll
+  const handleShowForm = () => {
+    setShowForm(true);
+    // Scroll to form after state update
+    setTimeout(() => {
+      scrollToForm('.quick-add-section', {
+        block: 'center',
+        offset: -50
+      });
+    }, 100);
+  };
+
+  // Format currency with safety checks
   const formatCurrency = (amount) => {
-    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    const numericAmount = Number(amount);
+    if (isNaN(numericAmount)) {
+      return '$0.00';
+    }
+    return `$${numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   };
 
   // Format date
@@ -114,6 +201,34 @@ const Income = () => {
       day: 'numeric'
     });
   };
+
+  // Loading state
+  if (incomesLoading && !incomesArray.length) {
+    return (
+      <div className="income-module">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading your income data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (incomesError) {
+    return (
+      <div className="income-module">
+        <div className="error-container">
+          <div className="error-icon">⚠️</div>
+          <h3>Unable to Load Income Data</h3>
+          <p>{incomesError}</p>
+          <button onClick={refetchIncomes} className="retry-button">
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="income-module">
@@ -127,7 +242,7 @@ const Income = () => {
           <div className="hero-actions">
             <button 
               className={`primary-action-btn ${showForm ? 'active' : ''}`}
-              onClick={() => showForm ? handleCancel() : setShowForm(true)}
+              onClick={() => showForm ? handleCancel() : handleShowForm()}
             >
               {showForm ? (
                 <>
@@ -208,7 +323,7 @@ const Income = () => {
                   </svg>
                 </div>
               </div>
-              <div className="card-value">{incomes.length}</div>
+              <div className="card-value">{incomesArray.length}</div>
               <div className="card-trend neutral">
                 <span>Active records</span>
               </div>
@@ -218,7 +333,7 @@ const Income = () => {
       </section>
 
       {/* AI Insight */}
-      <PageAIInsight page="income" data={incomes} />
+      <PageAIInsight page="income" data={incomesArray} />
 
       {/* Quick Add Income Form - Compact Design */}
       {showForm && (
@@ -294,11 +409,11 @@ const Income = () => {
         <div className="section-header">
           <h2 className="section-title">Income Records</h2>
           <div className="section-meta">
-            <span className="record-count">{incomes.length} {incomes.length === 1 ? 'record' : 'records'}</span>
+            <span className="record-count">{incomesArray.length} {incomesArray.length === 1 ? 'record' : 'records'}</span>
           </div>
         </div>
         
-        {incomes.length === 0 ? (
+        {incomesArray.length === 0 ? (
           <div className="empty-state">
             <div className="empty-illustration">
               <div className="empty-icon">
@@ -313,7 +428,7 @@ const Income = () => {
               <p className="empty-description">Start tracking your income by adding your first earning record. This will help you monitor your financial growth.</p>
               <button 
                 className="empty-action-btn"
-                onClick={() => setShowForm(true)}
+                onClick={handleShowForm}
               >
                 <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -325,10 +440,10 @@ const Income = () => {
           </div>
         ) : (
           <div className="records-grid">
-            {incomes
+            {incomesArray
               .sort((a, b) => new Date(b.date) - new Date(a.date))
               .map(income => (
-              <div key={income.id} className="record-card">
+              <div key={income._id || income.id} className="record-card">
                 <div className="record-main">
                   <div className="record-amount">{formatCurrency(income.amount)}</div>
                   <div className="record-details">
@@ -357,7 +472,7 @@ const Income = () => {
                   </button>
                   <button 
                     className="action-btn delete"
-                    onClick={() => handleDelete(income.id)}
+                    onClick={() => handleDelete(income._id || income.id)}
                     title="Delete income record"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

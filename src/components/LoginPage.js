@@ -77,7 +77,12 @@ const LoginPage = ({ onBack }) => {
       }
       
       if (!result.success) {
-        setError(result.error);
+        // Handle rate limiting specifically
+        if (result.error && result.error.includes('Too many requests')) {
+          setError(result.error + ' The server is protecting against too many login attempts.');
+        } else {
+          setError(result.error);
+        }
       }
       // If successful, the AuthContext will handle the redirect
     } catch (err) {
@@ -112,15 +117,8 @@ const LoginPage = ({ onBack }) => {
           </button>
           
           <div className="brand-section">
-            <div className="app-logo">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="1" y="3" width="15" height="13"></rect>
-                <path d="m16 8 2 2-4 4-2-2"></path>
-                <path d="m21 15-3-3 3-3"></path>
-              </svg>
-            </div>
             <div className="brand-info">
-              <h1 className="app-title">HealthyWallet</h1>
+            <img src="../logo.svg" alt="HealthyWallet Logo" />
               <span className="app-subtitle">Financial Management</span>
             </div>
           </div>

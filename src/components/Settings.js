@@ -1,65 +1,137 @@
 import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import PageAIInsight from './PageAIInsight';
+import { useSettings } from '../hooks/useSettings';
 
 const Settings = () => {
-  // Theme settings
-  const [darkMode, setDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem('healthywallet-theme');
-    return savedTheme === 'dark';
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Use backend settings hook
+  const { 
+    settings, 
+    loading, 
+    error, 
+    saving, 
+    updateSetting, 
+    updateSettings 
+  } = useSettings();
+
+  // Track recent saves to prevent state overrides
+  const [recentlySaved, setRecentlySaved] = useState(false);
+
+  // Local state for form management
+  const [formData, setFormData] = useState({
+    theme: 'light',
+    currency: 'USD',
+    notifications: true,
+    budgetAlerts: true,
+    goalReminders: true
   });
 
-  // Notification settings
-  const [notifications, setNotifications] = useState(() => {
-    const savedNotifications = localStorage.getItem('healthywallet-notifications');
-    return savedNotifications !== null ? JSON.parse(savedNotifications) : true;
-  });
+  // Update form data when settings load from backend (but not during or right after saving)
+  useEffect(() => {
+    if (settings && !saving && !recentlySaved) {
+      const newFormData = {
+        theme: settings.theme || 'light',
+        currency: settings.currency || 'USD',
+        notifications: settings.notifications !== false,
+        budgetAlerts: settings.budgetAlerts !== false,
+        goalReminders: settings.goalReminders !== false
+      };
+      
+      console.log('🔄 Updating form data from backend settings:', newFormData);
+      console.log('🔄 Full settings object:', settings);
+      setFormData(newFormData);
+    } else if (recentlySaved) {
+      console.log('⏸️ Skipping form data update - recently saved');
+    }
+  }, [settings, saving, recentlySaved]);
 
-  // Currency settings
-  const [currency, setCurrency] = useState(() => {
-    const savedCurrency = localStorage.getItem('healthywallet-currency');
-    return savedCurrency || 'USD';
-  });
-
-  // Budget alert settings
-  const [budgetAlerts, setBudgetAlerts] = useState(() => {
-    const savedAlerts = localStorage.getItem('healthywallet-budget-alerts');
-    return savedAlerts !== null ? JSON.parse(savedAlerts) : true;
-  });
-
-  // Goal reminder settings
-  const [goalReminders, setGoalReminders] = useState(() => {
-    const savedReminders = localStorage.getItem('healthywallet-goal-reminders');
-    return savedReminders !== null ? JSON.parse(savedReminders) : true;
-  });
+  // Derived state for backward compatibility
+  const darkMode = formData.theme === 'dark';
+  const notifications = formData.notifications;
+  const currency = formData.currency;
+  const budgetAlerts = formData.budgetAlerts;
+  const goalReminders = formData.goalReminders;
 
   // Apply theme changes
   useEffect(() => {
+    console.log('🎨 Applying theme:', darkMode ? 'dark' : 'light', 'formData.theme:', formData.theme);
     if (darkMode) {
       document.body.classList.add('dark-theme');
-      localStorage.setItem('healthywallet-theme', 'dark');
     } else {
       document.body.classList.remove('dark-theme');
-      localStorage.setItem('healthywallet-theme', 'light');
     }
-  }, [darkMode]);
+  }, [darkMode, formData.theme]);
 
-  // Save settings to localStorage
+  // Loading animation
   useEffect(() => {
-    localStorage.setItem('healthywallet-notifications', JSON.stringify(notifications));
-  }, [notifications]);
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem('healthywallet-currency', currency);
-  }, [currency]);
+  // Handle setting changes
+  const handleSettingChange = async (key, value) => {
+    console.log(`🔧 Changing setting ${key} from "${formData[key]}" to "${value}"`);
+    
+    // Store the current value before updating
+    const previousValue = formData[key];
+    
+    // Update local form state immediately for responsive UI
+    setFormData(prev => {
+      const newState = { ...prev, [key]: value };
+      console.log(`📝 Updated formData:`, newState);
+      return newState;
+    });
+    
+    // Set recently saved flag to prevent state overrides
+    setRecentlySaved(true);
+    
+    // Update backend
+    try {
+      const result = await updateSetting(key, value);
+      console.log(`✅ Setting ${key} updated to:`, value, 'Backend result:', result);
+      
+      // Clear the recently saved flag after a longer delay to allow backend refresh
+      setTimeout(() => {
+        console.log('🔓 Clearing recentlySaved flag');
+        setRecentlySaved(false);
+      }, 3000); // Extended to 3 seconds to allow backend refresh
+    } catch (error) {
+      console.error(`❌ Failed to update ${key}:`, error);
+      // Revert local state to previous value on error
+      setFormData(prev => {
+        const revertedState = { ...prev, [key]: previousValue };
+        console.log(`↩️ Reverted formData:`, revertedState);
+        return revertedState;
+      });
+      // Clear recently saved flag on error too
+      setRecentlySaved(false);
+    }
+  };
 
-  useEffect(() => {
-    localStorage.setItem('healthywallet-budget-alerts', JSON.stringify(budgetAlerts));
-  }, [budgetAlerts]);
+  // Helper functions for backward compatibility
+  const setDarkMode = (isDark) => {
+    handleSettingChange('theme', isDark ? 'dark' : 'light');
+  };
 
-  useEffect(() => {
-    localStorage.setItem('healthywallet-goal-reminders', JSON.stringify(goalReminders));
-  }, [goalReminders]);
+  const setNotifications = (enabled) => {
+    handleSettingChange('notifications', enabled);
+  };
+
+  const setCurrency = (curr) => {
+    handleSettingChange('currency', curr);
+  };
+
+  const setBudgetAlerts = (enabled) => {
+    handleSettingChange('budgetAlerts', enabled);
+  };
+
+  const setGoalReminders = (enabled) => {
+    handleSettingChange('goalReminders', enabled);
+  };
 
   const handleExportData = () => {
     // Mock data export functionality
@@ -99,7 +171,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="settings-module">
+    <div className={`settings-module ${isLoaded ? 'loaded' : ''}`}>
       {/* Header */}
       <header className="module-header">
         <div className="header-content">
@@ -144,11 +216,153 @@ const Settings = () => {
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
               >
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="CAD">CAD (C$)</option>
-                <option value="AUD">AUD (A$)</option>
+                {/* Major Global Currencies */}
+                <optgroup label="🌍 Major Global Currencies">
+                  <option value="USD">USD ($) - US Dollar</option>
+                  <option value="EUR">EUR (€) - Euro</option>
+                  <option value="GBP">GBP (£) - British Pound</option>
+                  <option value="JPY">JPY (¥) - Japanese Yen</option>
+                  <option value="CHF">CHF (₣) - Swiss Franc</option>
+                  <option value="CAD">CAD (C$) - Canadian Dollar</option>
+                  <option value="AUD">AUD (A$) - Australian Dollar</option>
+                  <option value="CNY">CNY (¥) - Chinese Yuan</option>
+                </optgroup>
+
+                {/* North America */}
+                <optgroup label="🇺🇸 North America">
+                  <option value="USD">USD ($) - US Dollar</option>
+                  <option value="CAD">CAD (C$) - Canadian Dollar</option>
+                  <option value="MXN">MXN ($) - Mexican Peso</option>
+                  <option value="GTQ">GTQ (Q) - Guatemalan Quetzal</option>
+                  <option value="CRC">CRC (₡) - Costa Rican Colón</option>
+                  <option value="HNL">HNL (L) - Honduran Lempira</option>
+                  <option value="NIO">NIO (C$) - Nicaraguan Córdoba</option>
+                  <option value="PAB">PAB (B/.) - Panamanian Balboa</option>
+                </optgroup>
+
+                {/* Europe */}
+                <optgroup label="🇪🇺 Europe">
+                  <option value="EUR">EUR (€) - Euro</option>
+                  <option value="GBP">GBP (£) - British Pound</option>
+                  <option value="CHF">CHF (₣) - Swiss Franc</option>
+                  <option value="NOK">NOK (kr) - Norwegian Krone</option>
+                  <option value="SEK">SEK (kr) - Swedish Krona</option>
+                  <option value="DKK">DKK (kr) - Danish Krone</option>
+                  <option value="PLN">PLN (zł) - Polish Złoty</option>
+                  <option value="CZK">CZK (Kč) - Czech Koruna</option>
+                  <option value="HUF">HUF (Ft) - Hungarian Forint</option>
+                  <option value="RON">RON (lei) - Romanian Leu</option>
+                  <option value="BGN">BGN (лв) - Bulgarian Lev</option>
+                  <option value="HRK">HRK (kn) - Croatian Kuna</option>
+                  <option value="RUB">RUB (₽) - Russian Ruble</option>
+                  <option value="UAH">UAH (₴) - Ukrainian Hryvnia</option>
+                  <option value="TRY">TRY (₺) - Turkish Lira</option>
+                  <option value="ISK">ISK (kr) - Icelandic Króna</option>
+                </optgroup>
+
+                {/* Asia Pacific */}
+                <optgroup label="🌏 Asia Pacific">
+                  <option value="JPY">JPY (¥) - Japanese Yen</option>
+                  <option value="CNY">CNY (¥) - Chinese Yuan</option>
+                  <option value="KRW">KRW (₩) - South Korean Won</option>
+                  <option value="INR">INR (₹) - Indian Rupee</option>
+                  <option value="AUD">AUD (A$) - Australian Dollar</option>
+                  <option value="NZD">NZD (NZ$) - New Zealand Dollar</option>
+                  <option value="SGD">SGD (S$) - Singapore Dollar</option>
+                  <option value="HKD">HKD (HK$) - Hong Kong Dollar</option>
+                  <option value="TWD">TWD (NT$) - Taiwan Dollar</option>
+                  <option value="MYR">MYR (RM) - Malaysian Ringgit</option>
+                  <option value="THB">THB (฿) - Thai Baht</option>
+                  <option value="IDR">IDR (Rp) - Indonesian Rupiah</option>
+                  <option value="PHP">PHP (₱) - Philippine Peso</option>
+                  <option value="VND">VND (₫) - Vietnamese Dong</option>
+                  <option value="PKR">PKR (Rs) - Pakistani Rupee</option>
+                  <option value="BDT">BDT (৳) - Bangladeshi Taka</option>
+                  <option value="LKR">LKR (Rs) - Sri Lankan Rupee</option>
+                  <option value="NPR">NPR (Rs) - Nepalese Rupee</option>
+                  <option value="MMK">MMK (K) - Myanmar Kyat</option>
+                  <option value="KHR">KHR (៛) - Cambodian Riel</option>
+                  <option value="LAK">LAK (₭) - Lao Kip</option>
+                  <option value="BND">BND (B$) - Brunei Dollar</option>
+                </optgroup>
+
+                {/* Middle East & Africa */}
+                <optgroup label="🌍 Middle East & Africa">
+                  <option value="AED">AED (د.إ) - UAE Dirham</option>
+                  <option value="SAR">SAR (﷼) - Saudi Riyal</option>
+                  <option value="QAR">QAR (﷼) - Qatari Riyal</option>
+                  <option value="KWD">KWD (د.ك) - Kuwaiti Dinar</option>
+                  <option value="BHD">BHD (د.ب) - Bahraini Dinar</option>
+                  <option value="OMR">OMR (﷼) - Omani Rial</option>
+                  <option value="JOD">JOD (د.ا) - Jordanian Dinar</option>
+                  <option value="LBP">LBP (£) - Lebanese Pound</option>
+                  <option value="SYP">SYP (£) - Syrian Pound</option>
+                  <option value="IQD">IQD (د.ع) - Iraqi Dinar</option>
+                  <option value="IRR">IRR (﷼) - Iranian Rial</option>
+                  <option value="ILS">ILS (₪) - Israeli Shekel</option>
+                  <option value="EGP">EGP (£) - Egyptian Pound</option>
+                  <option value="ZAR">ZAR (R) - South African Rand</option>
+                  <option value="NGN">NGN (₦) - Nigerian Naira</option>
+                  <option value="KES">KES (Sh) - Kenyan Shilling</option>
+                  <option value="UGX">UGX (Sh) - Ugandan Shilling</option>
+                  <option value="TZS">TZS (Sh) - Tanzanian Shilling</option>
+                  <option value="ETB">ETB (Br) - Ethiopian Birr</option>
+                  <option value="GHS">GHS (₵) - Ghanaian Cedi</option>
+                  <option value="XOF">XOF (₣) - West African Franc</option>
+                  <option value="XAF">XAF (₣) - Central African Franc</option>
+                  <option value="MAD">MAD (د.م.) - Moroccan Dirham</option>
+                  <option value="TND">TND (د.ت) - Tunisian Dinar</option>
+                  <option value="DZD">DZD (د.ج) - Algerian Dinar</option>
+                  <option value="LYD">LYD (ل.د) - Libyan Dinar</option>
+                </optgroup>
+
+                {/* South America */}
+                <optgroup label="🌎 South America">
+                  <option value="BRL">BRL (R$) - Brazilian Real</option>
+                  <option value="ARS">ARS ($) - Argentine Peso</option>
+                  <option value="CLP">CLP ($) - Chilean Peso</option>
+                  <option value="COP">COP ($) - Colombian Peso</option>
+                  <option value="PEN">PEN (S/) - Peruvian Sol</option>
+                  <option value="UYU">UYU ($U) - Uruguayan Peso</option>
+                  <option value="PYG">PYG (₲) - Paraguayan Guaraní</option>
+                  <option value="BOB">BOB (Bs.) - Bolivian Boliviano</option>
+                  <option value="VES">VES (Bs.S.) - Venezuelan Bolívar</option>
+                  <option value="GYD">GYD ($) - Guyanese Dollar</option>
+                  <option value="SRD">SRD ($) - Surinamese Dollar</option>
+                </optgroup>
+
+                {/* Caribbean */}
+                <optgroup label="🏝️ Caribbean">
+                  <option value="JMD">JMD (J$) - Jamaican Dollar</option>
+                  <option value="TTD">TTD (TT$) - Trinidad & Tobago Dollar</option>
+                  <option value="BBD">BBD (Bds$) - Barbadian Dollar</option>
+                  <option value="BSD">BSD (B$) - Bahamian Dollar</option>
+                  <option value="BZD">BZD (BZ$) - Belize Dollar</option>
+                  <option value="XCD">XCD (EC$) - East Caribbean Dollar</option>
+                  <option value="CUP">CUP ($) - Cuban Peso</option>
+                  <option value="DOP">DOP (RD$) - Dominican Peso</option>
+                  <option value="HTG">HTG (G) - Haitian Gourde</option>
+                </optgroup>
+
+                {/* Oceania */}
+                <optgroup label="🌊 Oceania">
+                  <option value="AUD">AUD (A$) - Australian Dollar</option>
+                  <option value="NZD">NZD (NZ$) - New Zealand Dollar</option>
+                  <option value="FJD">FJD (FJ$) - Fijian Dollar</option>
+                  <option value="PGK">PGK (K) - Papua New Guinea Kina</option>
+                  <option value="SBD">SBD (SI$) - Solomon Islands Dollar</option>
+                  <option value="VUV">VUV (Vt) - Vanuatu Vatu</option>
+                  <option value="WST">WST (WS$) - Samoan Tala</option>
+                  <option value="TOP">TOP (T$) - Tongan Paʻanga</option>
+                </optgroup>
+
+                {/* Digital & Alternative */}
+                <optgroup label="₿ Digital Currencies">
+                  <option value="BTC">BTC (₿) - Bitcoin</option>
+                  <option value="ETH">ETH (Ξ) - Ethereum</option>
+                  <option value="USDT">USDT - Tether</option>
+                  <option value="USDC">USDC - USD Coin</option>
+                </optgroup>
               </select>
             </div>
 

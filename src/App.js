@@ -8,8 +8,15 @@ import Expense from './components/Expense';
 import Goal from './components/Goal';
 import Reports from './components/Reports';
 import Settings from './components/Settings';
+import Profile from './components/Profile';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
+import BackendStatus from './components/BackendStatus';
+
+// Import scroll demo for development testing
+if (process.env.NODE_ENV === 'development') {
+  import('./utils/scrollDemo');
+}
 
 // Main App Content Component (Protected)
 const AppContent = () => {
@@ -30,6 +37,8 @@ const AppContent = () => {
         return <Reports />;
       case 'settings':
         return <Settings />;
+      case 'profile':
+        return <Profile />;
       default:
         return <Dashboard onNavigate={setCurrentPage} />;
     }
@@ -96,6 +105,7 @@ const AuthRouter = () => {
 function App() {
   return (
     <AuthProvider>
+      <BackendStatus />
       <AuthRouter />
     </AuthProvider>
   );

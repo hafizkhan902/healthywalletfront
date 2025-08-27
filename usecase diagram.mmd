@@ -1,0 +1,139 @@
+graph TD
+    %% Stakeholders
+    User[👤 Primary User<br/>Individual seeking<br/>financial management]
+    Guest[🔓 Guest User<br/>Potential user<br/>exploring features]
+    DevTeam[👨‍💻 Development Team<br/>App maintenance<br/>& updates]
+    
+    %% External Systems
+    LocalStorage[(🗄️ Local Storage<br/>User data persistence)]
+    Browser[🌐 Web Browser<br/>Application runtime]
+    
+    %% Core System
+    HealthyWallet{🏦 HealthyWallet<br/>Financial Management System}
+    
+    %% Authentication System
+    AuthSystem[🔐 Authentication System<br/>Login/Register/Session Management]
+    
+    %% Main Modules
+    Dashboard[📊 Dashboard Module<br/>Financial Overview & Insights]
+    Income[💰 Income Management<br/>Track & Categorize Income]
+    Expense[💸 Expense Tracking<br/>Monitor & Analyze Spending]
+    Goals[🎯 Goal Management<br/>Set & Track Financial Goals]
+    Reports[📈 Reports & Analytics<br/>Financial Performance Analysis]
+    Profile[👤 Profile Management<br/>User Info & Preferences]
+    Settings[⚙️ Settings<br/>App Configuration]
+    
+    %% AI System
+    AIInsights[🤖 AI Insights Engine<br/>Smart Financial Analysis]
+    
+    %% Use Cases - Guest User
+    Guest -.-> |"Browse Features"| LandingPage[🏠 Landing Page<br/>Feature Overview]
+    Guest -.-> |"View Demo"| FeatureDemo[🎬 Feature Demonstrations<br/>Interactive Previews]
+    Guest -.-> |"Sign Up"| Registration[📝 User Registration<br/>Account Creation]
+    
+    %% Use Cases - Primary User Authentication
+    User --> |"Login/Logout"| AuthSystem
+    User --> |"Register Account"| Registration
+    User --> |"Session Management"| SessionMgmt[⏱️ Session Management<br/>24hr Auto-expire]
+    
+    %% Core User Interactions
+    User --> |"View Financial Overview"| Dashboard
+    User --> |"Add/Edit Income"| Income
+    User --> |"Track Expenses"| Expense
+    User --> |"Manage Goals"| Goals
+    User --> |"Generate Reports"| Reports
+    User --> |"Update Profile"| Profile
+    User --> |"Configure Settings"| Settings
+    
+    %% Dashboard Sub-functions
+    Dashboard --> |"Display Financial Summary"| FinSummary[💹 Financial Summary<br/>Balance, Income, Expenses]
+    Dashboard --> |"Show Quick Actions"| QuickActions[⚡ Quick Actions<br/>Add Income/Expense/Goal]
+    Dashboard --> |"Performance Metrics"| Metrics[📏 Performance Metrics<br/>Savings Rate, Trends]
+    
+    %% Income Management Sub-functions
+    Income --> |"Add Income Entry"| AddIncome[➕ Add Income<br/>Amount, Source, Date]
+    Income --> |"Categorize Income"| CatIncome[🏷️ Categorize Income<br/>Salary, Freelance, Investment]
+    Income --> |"Edit/Delete Income"| ManageIncome[✏️ Manage Income<br/>Modify/Remove Entries]
+    
+    %% Expense Tracking Sub-functions
+    Expense --> |"Record Expense"| AddExpense[➕ Add Expense<br/>Amount, Category, Notes]
+    Expense --> |"Expense Categories"| ExpenseCategories[🏷️ Expense Categories<br/>Food, Bills, Transport, etc.]
+    Expense --> |"Expense History"| ExpenseHistory[📋 Expense History<br/>View & Filter Past Expenses]
+    
+    %% Goal Management Sub-functions
+    Goals --> |"Create Financial Goal"| CreateGoal[🎯 Create Goal<br/>Target Amount, Timeline]
+    Goals --> |"Track Progress"| TrackProgress[📊 Track Progress<br/>Savings Towards Goal]
+    Goals --> |"Goal Categories"| GoalTypes[🎯 Goal Categories<br/>Emergency, Vacation, Investment]
+    
+    %% Reports & Analytics Sub-functions
+    Reports --> |"Monthly Reports"| MonthlyReports[📅 Monthly Reports<br/>Income vs Expense Analysis]
+    Reports --> |"Category Analysis"| CategoryAnalysis[📊 Category Analysis<br/>Spending Breakdown]
+    Reports --> |"Trend Analysis"| TrendAnalysis[📈 Trend Analysis<br/>Financial Progress Over Time]
+    
+    %% Profile Management Sub-functions
+    Profile --> |"Personal Information"| PersonalInfo[👤 Personal Info<br/>Name, Email, Bio]
+    Profile --> |"Financial Summary"| ProfileFinancial[💰 Financial Overview<br/>Achievements, Stats]
+    Profile --> |"Activity History"| ActivityHistory[📝 Activity History<br/>Recent Transactions]
+    Profile --> |"Achievement System"| Achievements[🏆 Achievements<br/>Financial Milestones]
+    
+    %% Settings Sub-functions
+    Settings --> |"Appearance Settings"| Appearance[🎨 Appearance<br/>Dark Mode, Currency]
+    Settings --> |"Notification Settings"| Notifications[🔔 Notifications<br/>Alerts & Reminders]
+    Settings --> |"Data Management"| DataMgmt[🗂️ Data Management<br/>Export, Clear Data]
+    Settings --> |"Account Settings"| AccountSettings[👤 Account Settings<br/>Password, Security]
+    
+    %% AI Insights Integration
+    AIInsights --> |"Analyze Spending Patterns"| SpendingAnalysis[📊 Spending Analysis<br/>Category Insights]
+    AIInsights --> |"Savings Recommendations"| SavingsRec[💡 Savings Recommendations<br/>Optimization Tips]
+    AIInsights --> |"Goal Achievement Forecast"| GoalForecast[🔮 Goal Forecasting<br/>Timeline Predictions]
+    AIInsights --> |"Financial Health Score"| HealthScore[❤️ Financial Health<br/>Overall Assessment]
+    
+    %% Data Flow Connections
+    HealthyWallet --> Dashboard
+    HealthyWallet --> Income
+    HealthyWallet --> Expense  
+    HealthyWallet --> Goals
+    HealthyWallet --> Reports
+    HealthyWallet --> Profile
+    HealthyWallet --> Settings
+    HealthyWallet --> AIInsights
+    HealthyWallet --> AuthSystem
+    
+    %% Data Storage
+    AuthSystem <--> |"Store/Retrieve Auth Data"| LocalStorage
+    Dashboard <--> |"Store/Retrieve Financial Data"| LocalStorage
+    Income <--> |"Store/Retrieve Income Data"| LocalStorage
+    Expense <--> |"Store/Retrieve Expense Data"| LocalStorage
+    Goals <--> |"Store/Retrieve Goal Data"| LocalStorage
+    Profile <--> |"Store/Retrieve Profile Data"| LocalStorage
+    Settings <--> |"Store/Retrieve Settings"| LocalStorage
+    
+    %% AI Data Sources
+    Dashboard --> |"Financial Data"| AIInsights
+    Income --> |"Income Data"| AIInsights
+    Expense --> |"Expense Data"| AIInsights
+    Goals --> |"Goal Data"| AIInsights
+    
+    %% Development Team Interactions
+    DevTeam -.-> |"Maintain & Update"| HealthyWallet
+    DevTeam -.-> |"Monitor Performance"| Browser
+    DevTeam -.-> |"Feature Development"| HealthyWallet
+    
+    %% Browser Environment
+    Browser --> |"Hosts Application"| HealthyWallet
+    Browser --> |"Provides Storage"| LocalStorage
+    
+    %% Styling
+    classDef userClass fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef systemClass fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef moduleClass fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef aiClass fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef storageClass fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef devClass fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+    
+    class User,Guest userClass
+    class HealthyWallet,AuthSystem,Browser systemClass
+    class Dashboard,Income,Expense,Goals,Reports,Profile,Settings moduleClass
+    class AIInsights,SpendingAnalysis,SavingsRec,GoalForecast,HealthScore aiClass
+    class LocalStorage storageClass
+    class DevTeam devClass

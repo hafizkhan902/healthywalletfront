@@ -1,5 +1,6 @@
 import React from 'react';
 import './Header.css';
+import logo from '../logo.png';
 
 const Header = ({ currentPage, onNavigate, user, onLogout }) => {
   const navigationItems = [
@@ -66,11 +67,7 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
           {/* Brand Section */}
           <div className="brand-section">
             <div className="app-logo">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="1" y="3" width="15" height="13"></rect>
-                <path d="m16 8 2 2-4 4-2-2"></path>
-                <path d="m21 15-3-3 3-3"></path>
-              </svg>
+              <img src={logo} alt="HealthyWallet Logo" width="32" height="32" />
             </div>
             <div className="brand-info">
               <h1 className="app-title">HealthyWallet</h1>
@@ -98,44 +95,67 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
 
           {/* User Section */}
           <div className="user-section">
-            <button
-              className={`settings-btn ${currentPage === 'settings' ? 'active' : ''}`}
-              onClick={() => onNavigate('settings')}
-              aria-label="Settings"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="m12 1 1.5 1.5L16 2l1 1-0.5 2.5L18 7l-1 1-2.5-0.5L13 10l-1-1 0.5-2.5L11 5l1-1 2.5 0.5L16 2l-1-1-2.5 0.5L11 3l1 1-0.5 2.5z"></path>
-                <path d="m19.14 14.14 2.86-2.86"></path>
-                <path d="m16.86 19.14 2.86-2.86"></path>
-                <path d="m19.14 19.14-2.86-2.86"></path>
-                <path d="m16.86 14.14-2.86 2.86"></path>
-              </svg>
-            </button>
-            
-            {/* User Info and Logout */}
-            <div className="user-info">
-              <span className="user-name">{user?.name || 'User'}</span>
+            {/* User Profile Dropdown */}
+            <div className="user-profile-dropdown">
               <button 
-                className="logout-btn"
-                onClick={onLogout}
-                aria-label="Logout"
-                title="Logout"
+                className={`user-avatar ${currentPage === 'profile' ? 'active' : ''}`}
+                aria-label="User Profile"
+                title="User Profile"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
+                <div className="avatar-placeholder">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
               </button>
-            </div>
-            
-            <div className="user-avatar">
-              <div className="avatar-placeholder">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+              
+              {/* Dropdown Menu */}
+              <div className="dropdown-menu">
+                <div className="dropdown-header">
+                  <div className="user-info">
+                    <div className="user-name">{user?.name || 'User'}</div>
+                    <div className="user-email">{user?.email || 'user@healthywallet.com'}</div>
+                  </div>
+                </div>
+                <div className="dropdown-divider"></div>
+                <div className="dropdown-items">
+                  <button 
+                    className="dropdown-item"
+                    onClick={() => onNavigate('profile')}
+                    aria-label="Profile"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Profile</span>
+                  </button>
+                  <button 
+                    className="dropdown-item"
+                    onClick={() => onNavigate('settings')}
+                    aria-label="Settings"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="3"></circle>
+                      <path d="M12 1v6m0 6v6"></path>
+                    </svg>
+                    <span>Settings</span>
+                  </button>
+                  <div className="dropdown-divider"></div>
+                  <button 
+                    className="dropdown-item logout-item"
+                    onClick={onLogout}
+                    aria-label="Logout"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -143,7 +163,7 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
       </div>
 
       {/* Mobile Navigation */}
-      <nav className="mobile-nav" role="navigation">
+      <nav className="mobile-nav" role="navigation" aria-label="Mobile Navigation">
         <ul className="mobile-nav-list">
           {navigationItems.map((item) => (
             <li key={item.id} className="mobile-nav-item">
@@ -151,45 +171,14 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
                 className={`mobile-nav-link ${currentPage === item.id ? 'active' : ''}`}
                 onClick={() => onNavigate(item.id)}
                 aria-current={currentPage === item.id ? 'page' : undefined}
-                aria-label={item.label}
+                aria-label={`Navigate to ${item.label}`}
+                title={item.label}
               >
-                <span className="mobile-nav-icon">{item.icon}</span>
+                <span className="mobile-nav-icon" aria-hidden="true">{item.icon}</span>
                 <span className="mobile-nav-label">{item.label}</span>
               </button>
             </li>
           ))}
-          <li className="mobile-nav-item">
-            <button
-              className={`mobile-nav-link ${currentPage === 'settings' ? 'active' : ''}`}
-              onClick={() => onNavigate('settings')}
-              aria-current={currentPage === 'settings' ? 'page' : undefined}
-              aria-label="Settings"
-            >
-              <span className="mobile-nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="m12 1 1.5 1.5L16 2l1 1-0.5 2.5L18 7l-1 1-2.5-0.5L13 10l-1-1 0.5-2.5L11 5l1-1 2.5 0.5L16 2l-1-1-2.5 0.5L11 3l1 1-0.5 2.5z"></path>
-                </svg>
-              </span>
-              <span className="mobile-nav-label">Settings</span>
-            </button>
-          </li>
-          <li className="mobile-nav-item">
-            <button
-              className="mobile-nav-link logout-mobile"
-              onClick={onLogout}
-              aria-label="Logout"
-            >
-              <span className="mobile-nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-              </span>
-              <span className="mobile-nav-label">Logout</span>
-            </button>
-          </li>
         </ul>
       </nav>
     </header>

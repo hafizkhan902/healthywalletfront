@@ -3,12 +3,74 @@
 /* Import Revolutionary Font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
+/* Loading and Error States */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(56, 161, 105, 0.1);
+  border-top: 3px solid var(--expense-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.error-container h3 {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.retry-button {
+  background: var(--expense-gradient);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 16px;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
 :root {
   --expense-primary: #38a169;
   --expense-gradient: linear-gradient(135deg, #38a169 0%, #48bb78 50%, #68d391 100%);
   --glass-light: rgba(255, 255, 255, 0.95);
   --custom-background: rgb(221 243 232);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(0, 253, 84, 0.2);
   --shadow-soft: 0 8px 32px rgba(56, 161, 105, 0.12);
   --shadow-hover: 0 16px 48px rgba(56, 161, 105, 0.18);
   --text-primary: #1a202c;
@@ -53,7 +115,7 @@
 }
 
 /* Revolutionary Animated Background */
-.hero-header::before {
+/* .hero-header::before {
   content: '';
   position: absolute;
   top: -50%;
@@ -63,9 +125,9 @@
   background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   animation: heroGlow 4s ease-in-out infinite;
-}
+} */
 
-.hero-header::after {
+/* .hero-header::after {
   content: '';
   position: absolute;
   bottom: -20%;
@@ -80,7 +142,7 @@
 @keyframes heroGlow {
   0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
   50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
-}
+} */
 
 .hero-content {
   position: relative;
@@ -648,13 +710,16 @@
 
 .record-count {
   background: var(--expense-gradient);
+  width: fit-content;
   color: white;
   padding: 12px 24px;
   border-radius: 24px;
-  font-size: 16px;
+  font-size: 0.8rem;
+  width:126px;
   font-weight: 700;
+  margin-bottom: 25px;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 16px rgba(56, 161, 105, 0.3);
+  box-shadow: 0 4px 16px rgba(197, 199, 198, 0.664);
   animation: countFloat 4s ease-in-out infinite;
 }
 
@@ -1056,25 +1121,50 @@
     padding: 24px 16px;
   }
   
+  /* Optimized Compact Hero Header for Mobile */
   .hero-header {
-    padding: 40px 24px;
-    margin-bottom: 40px;
-    border-radius: 24px;
+    padding: 20px 20px;
+    margin-bottom: 32px;
+    border-radius: 20px;
+  }
+  
+  .hero-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+  }
+  
+  .hero-text {
+    flex: 1;
+    min-width: 0;
   }
   
   .hero-title {
-    font-size: 32px;
+    font-size: 24px;
+    margin: 0 0 4px 0;
   }
   
   .hero-subtitle {
-    font-size: 18px;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+    opacity: 0.9;
+  }
+  
+  .hero-actions {
+    margin-left: 0;
+    flex-shrink: 0;
   }
   
   .primary-action-btn {
-    padding: 16px 32px;
-    font-size: 16px;
-    width: 100%;
-    justify-content: center;
+    padding: 12px 20px;
+    font-size: 14px;
+    border-radius: 12px;
+    min-width: auto;
+    white-space: nowrap;
   }
   
   .financial-overview,
@@ -1082,6 +1172,50 @@
   .smart-filters-section,
   .records-section {
     margin-bottom: 40px;
+  }
+  
+  /* Mobile-Optimized Financial Overview Cards */
+  .financial-overview {
+    margin-bottom: 40px;
+  }
+  
+  .overview-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .overview-card {
+    padding: 32px 24px;
+    border-radius: 20px;
+    margin: 0;
+  }
+  
+  .card-header {
+    margin-bottom: 16px;
+  }
+  
+  .card-label {
+    font-size: 12px;
+  }
+  
+  .card-value {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  
+  .card-trend {
+    font-size: 14px;
+  }
+  
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+  }
+  
+  .card-icon svg {
+    width: 22px;
+    height: 22px;
   }
   
   .section-title {
@@ -1145,23 +1279,94 @@
     padding: 20px 12px;
   }
   
+  /* Ultra-Compact Hero Header for Small Mobile */
   .hero-header {
-    padding: 32px 20px;
-    margin-bottom: 32px;
-    border-radius: 20px;
+    padding: 16px 16px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+  }
+  
+  .hero-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
   }
   
   .hero-title {
-    font-size: 28px;
+    font-size: 20px;
+    margin: 0 0 2px 0;
   }
   
   .hero-subtitle {
-    font-size: 16px;
+    font-size: 12px;
+    line-height: 1.3;
   }
   
   .primary-action-btn {
-    padding: 14px 24px;
-    font-size: 14px;
+    padding: 10px 16px;
+    font-size: 12px;
+    border-radius: 10px;
+    min-width: auto;
+  }
+  
+  /* Ultra-Compact Financial Overview for Small Mobile */
+  .financial-overview {
+    margin-bottom: 32px;
+  }
+  
+  .overview-grid {
+    gap: 12px;
+  }
+  
+  .overview-card {
+    padding: 16px 20px;
+    border-radius: 16px;
+  }
+  
+  .overview-card .card-content {
+    gap: 12px;
+  }
+  
+  .overview-card .card-label {
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+  
+  .overview-card .card-value {
+    font-size: 24px;
+  }
+  
+  .overview-card .card-trend {
+    font-size: 11px;
+    min-width: 70px;
+    gap: 3px;
+  }
+  
+  .overview-card .card-trend svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .overview-card .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  
+  .overview-card .card-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .overview-card.featured {
+    margin-bottom: 6px;
+  }
+  
+  .section-title {
+    font-size: 22px;
+    margin-bottom: 20px;
   }
   
   .overview-card {
