@@ -1,66 +1,212 @@
 import React, { useState, useEffect } from 'react';
 import './Reports.css';
 import PageAIInsight from './PageAIInsight';
+import { useCurrencyFormatter } from '../hooks/useCurrencyFormatter';
+import { reportsAPI } from '../services/api';
+import GlobalLoading from './GlobalLoading';
 
 const Reports = () => {
-  // Mock data - in real app, this would come from API/database
-  const [expenseData] = useState([
-    { id: 1, amount: 450.50, category: 'Food', date: '2024-01-20', note: 'Groceries and dining' },
-    { id: 2, amount: 320.00, category: 'Bills', date: '2024-01-18', note: 'Utilities' },
-    { id: 3, amount: 180.00, category: 'Transport', date: '2024-01-17', note: 'Gas and maintenance' },
-    { id: 4, amount: 240.00, category: 'Entertainment', date: '2024-01-15', note: 'Movies and subscriptions' },
-    { id: 5, amount: 89.99, category: 'Other', date: '2024-01-12', note: 'Miscellaneous' },
-    { id: 6, amount: 680.00, category: 'Bills', date: '2024-01-10', note: 'Rent' },
-    { id: 7, amount: 120.00, category: 'Food', date: '2024-01-08', note: 'Restaurant' },
-    { id: 8, amount: 45.00, category: 'Transport', date: '2024-01-05', note: 'Public transport' },
-  ]);
+  // Use global currency formatter
+  const { format: formatCurrency } = useCurrencyFormatter();
+  
+  // Real data state - loaded from backend APIs
+  const [expenseData, setExpenseData] = useState([]);
+  const [incomeData, setIncomeData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [incomeData] = useState([
-    { id: 1, amount: 3500.00, source: 'Salary', date: '2024-01-15' },
-    { id: 2, amount: 500.00, source: 'Freelance', date: '2024-01-10' },
-    { id: 3, amount: 1420.00, source: 'Investment', date: '2024-01-05' },
-  ]);
+  // Load reports data from backend
+  useEffect(() => {
+    loadReportsData();
+  }, []);
 
-  // Calculate expense categories for pie chart
-  const calculateCategoryData = () => {
-    const categories = ['Food', 'Bills', 'Transport', 'Entertainment', 'Other'];
-    const categoryTotals = categories.map(category => {
-      const total = expenseData
-        .filter(expense => expense.category === category)
-        .reduce((sum, expense) => sum + expense.amount, 0);
-      return { category, amount: total };
-    }).filter(item => item.amount > 0);
+  const loadReportsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔄 Loading reports data from backend...');
 
-    const totalExpenses = categoryTotals.reduce((sum, item) => sum + item.amount, 0);
-    
-    return categoryTotals.map(item => ({
-      ...item,
-      percentage: ((item.amount / totalExpenses) * 100).toFixed(1)
-    }));
-  };
+      // Load dashboard data (has some reports info)
+      const dashboardResponse = await reportsAPI.getDashboard();
+      if (dashboardResponse.success && dashboardResponse.data) {
+        const { data } = dashboardResponse;
+        
+        // Extract expense data from category breakdown
+        if (data.categoryBreakdown?.expenses) {
+          const expenses = data.categoryBreakdown.expenses.map((cat, index) => ({
+            id: index + 1,
+            amount: cat.total,
+            category: cat._id.charAt(0).toUpperCase() + cat._id.slice(1), // Capitalize
+            date: new Date().toISOString().split('T')[0], // Current date as fallback
+            note: `${cat._id} expenses`
+          }));
+          setExpenseData(expenses);
+          
+          // Transform for category data (pie chart)
+          const totalExpenses = data.categoryBreakdown.expenses.reduce((sum, cat) => sum + cat.total, 0);
+          const categoryChartData = data.categoryBreakdown.expenses.map(cat => ({
+            category: cat._id.charAt(0).toUpperCase() + cat._id.slice(1),
+            amount: cat.total,
+            percentage: totalExpenses > 0 ? ((cat.total / totalExpenses) * 100).toFixed(1) : 0
+          }));
+          setCategoryData(categoryChartData);
+        }
 
-  // Calculate monthly data for bar chart
-  const calculateMonthlyData = () => {
-    const months = ['Dec', 'Jan', 'Feb']; // Last 3 months for demo
-    const monthlyData = months.map(month => {
-      // Mock data for demonstration
-      const monthlyIncome = month === 'Jan' ? 5420 : month === 'Dec' ? 4800 : 5200;
-      const monthlyExpenses = month === 'Jan' ? 2125 : month === 'Dec' ? 2400 : 1900;
+        // Extract income data
+        if (data.recentTransactions?.income) {
+          const income = data.recentTransactions.income.map(inc => ({
+            id: inc._id,
+            amount: inc.amount,
+            source: inc.source,
+            date: inc.date
+          }));
+          setIncomeData(income);
+        }
+      }
+
+      // Load trend analysis for monthly data (bar chart)
+      const trendResponse = await reportsAPI.getTrendAnalysis(6);
+      if (trendResponse.success && trendResponse.data) {
+        console.log('📊 Raw trend data from backend:', trendResponse.data);
+        
+        // Backend returns {incomeTrend: [...], expenseTrend: [...], savingsTrend: [...]}
+        const { incomeTrend = [], expenseTrend = [], savingsTrend = [] } = trendResponse.data;
+        
+        // Create a map of months with income/expense data
+        const monthlyMap = new Map();
+        
+        // Process income trend
+        incomeTrend.forEach(item => {
+          const monthKey = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`;
+          if (!monthlyMap.has(monthKey)) {
+            monthlyMap.set(monthKey, { income: 0, expenses: 0, savings: 0 });
+          }
+          monthlyMap.get(monthKey).income = item.totalAmount;
+        });
+        
+        // Process expense trend
+        expenseTrend.forEach(item => {
+          const monthKey = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`;
+          if (!monthlyMap.has(monthKey)) {
+            monthlyMap.set(monthKey, { income: 0, expenses: 0, savings: 0 });
+          }
+          monthlyMap.get(monthKey).expenses = item.totalAmount;
+        });
+        
+        // Process savings trend
+        savingsTrend.forEach(item => {
+          const monthKey = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`;
+          if (monthlyMap.has(monthKey)) {
+            monthlyMap.get(monthKey).savings = item.savings;
+          }
+        });
+        
+        // Convert to array format for charts
+        const trends = Array.from(monthlyMap.entries())
+          .map(([monthKey, data]) => ({
+            month: new Date(monthKey + '-01').toLocaleDateString('en-US', { month: 'short' }),
+            income: Math.round(data.income),
+            expenses: Math.round(data.expenses),
+            savings: Math.round(data.savings || (data.income - data.expenses))
+          }))
+          .sort((a, b) => new Date(a.month + ' 2025') - new Date(b.month + ' 2025')); // Sort by month
+        
+        console.log('📊 Processed monthly trends:', trends);
+        setMonthlyData(trends);
+      }
+
+      console.log('✅ Reports data loaded successfully');
       
-      return {
-        month,
-        income: monthlyIncome,
-        expenses: monthlyExpenses,
-        savings: monthlyIncome - monthlyExpenses
-      };
-    });
-
-    return monthlyData;
+    } catch (error) {
+      console.error('❌ Failed to load reports data:', error);
+      setError('Failed to load reports data. Please try again.');
+      
+      // Fallback to mock data if API fails
+      loadMockDataFallback();
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const categoryData = calculateCategoryData();
-  const monthlyData = calculateMonthlyData();
-  const totalExpenses = categoryData.reduce((sum, item) => sum + item.amount, 0);
+  // Fallback mock data if backend fails
+  const loadMockDataFallback = () => {
+    console.log('📱 Using fallback mock data for reports');
+    
+    // Mock expense data
+    const mockExpenses = [
+      { id: 1, amount: 450.50, category: 'Food', date: '2024-01-20', note: 'Groceries and dining' },
+      { id: 2, amount: 320.00, category: 'Bills', date: '2024-01-18', note: 'Utilities' },
+      { id: 3, amount: 180.00, category: 'Transport', date: '2024-01-17', note: 'Gas and maintenance' },
+      { id: 4, amount: 240.00, category: 'Entertainment', date: '2024-01-15', note: 'Movies and subscriptions' },
+      { id: 5, amount: 89.99, category: 'Other', date: '2024-01-12', note: 'Miscellaneous' }
+    ];
+    setExpenseData(mockExpenses);
+    
+    // Mock income data
+    const mockIncome = [
+      { id: 1, amount: 3500.00, source: 'Salary', date: '2024-01-15' },
+      { id: 2, amount: 500.00, source: 'Freelance', date: '2024-01-10' },
+      { id: 3, amount: 1420.00, source: 'Investment', date: '2024-01-05' }
+    ];
+    setIncomeData(mockIncome);
+    
+    // Mock category data for pie chart
+    const totalExpenses = mockExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const mockCategoryData = [
+      { category: 'Food', amount: 570.50, percentage: ((570.50 / totalExpenses) * 100).toFixed(1) },
+      { category: 'Bills', amount: 320.00, percentage: ((320.00 / totalExpenses) * 100).toFixed(1) },
+      { category: 'Transport', amount: 180.00, percentage: ((180.00 / totalExpenses) * 100).toFixed(1) },
+      { category: 'Entertainment', amount: 240.00, percentage: ((240.00 / totalExpenses) * 100).toFixed(1) },
+      { category: 'Other', amount: 89.99, percentage: ((89.99 / totalExpenses) * 100).toFixed(1) }
+    ];
+    setCategoryData(mockCategoryData);
+    
+    // Mock monthly data for bar chart
+    const mockMonthlyData = [
+      { month: 'Dec', income: 4800, expenses: 2400, savings: 2400 },
+      { month: 'Jan', income: 5420, expenses: 2125, savings: 3295 },
+      { month: 'Feb', income: 5200, expenses: 1900, savings: 3300 }
+    ];
+    setMonthlyData(mockMonthlyData);
+  };
+
+  // Use categoryData and monthlyData from state (loaded from API)
+  // Fallback calculation if API data is not available
+  const getDisplayCategoryData = () => {
+    if (categoryData.length > 0) {
+      return categoryData;
+    }
+    
+    // Fallback: calculate from expenseData if available
+    if (expenseData.length > 0) {
+      const categories = ['Food', 'Bills', 'Transport', 'Entertainment', 'Other'];
+      const categoryTotals = categories.map(category => {
+        const total = expenseData
+          .filter(expense => expense.category === category)
+          .reduce((sum, expense) => sum + expense.amount, 0);
+        return { category, amount: total };
+      }).filter(item => item.amount > 0);
+
+      const totalExpenses = categoryTotals.reduce((sum, item) => sum + item.amount, 0);
+      
+      return categoryTotals.map(item => ({
+        ...item,
+        percentage: totalExpenses > 0 ? ((item.amount / totalExpenses) * 100).toFixed(1) : 0
+      }));
+    }
+    
+    return [];
+  };
+
+  const getDisplayMonthlyData = () => {
+    return monthlyData.length > 0 ? monthlyData : [];
+  };
+
+  const displayCategoryData = getDisplayCategoryData();
+  const displayMonthlyData = getDisplayMonthlyData();
+  const totalExpenses = displayCategoryData.reduce((sum, item) => sum + item.amount, 0);
 
   // Colors for categories
   const categoryColors = {
@@ -71,21 +217,18 @@ const Reports = () => {
     'Other': '#d69e2e'
   };
 
-  // Format currency
-  const formatCurrency = (amount) => {
-    return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-  };
+  // Currency formatting is now handled by useCurrencyFormatter hook
 
   // Generate pie chart SVG
   const generatePieChart = () => {
-    if (categoryData.length === 0) return null;
+    if (displayCategoryData.length === 0) return null;
 
     const radius = 80;
     const centerX = 100;
     const centerY = 100;
     let currentAngle = 0;
 
-    const paths = categoryData.map(item => {
+    const paths = displayCategoryData.map(item => {
       const percentage = parseFloat(item.percentage);
       const angle = (percentage / 100) * 360;
       const startAngle = currentAngle;
@@ -121,12 +264,13 @@ const Reports = () => {
 
   // Generate bar chart data
   const generateBarChart = () => {
-    const maxValue = Math.max(...monthlyData.map(item => Math.max(item.income, item.expenses)));
+    if (displayMonthlyData.length === 0) return [];
+    const maxValue = Math.max(...displayMonthlyData.map(item => Math.max(item.income, item.expenses)));
     const chartHeight = 200;
     const barWidth = 60;
     const spacing = 40;
 
-    return monthlyData.map((item, index) => {
+    return displayMonthlyData.map((item, index) => {
       const incomeHeight = (item.income / maxValue) * chartHeight;
       const expenseHeight = (item.expenses / maxValue) * chartHeight;
       const x = index * (barWidth * 2 + spacing) + 20;
@@ -146,13 +290,59 @@ const Reports = () => {
   const pieChartPaths = generatePieChart();
   const barChartData = generateBarChart();
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="reports-module">
+        <header className="module-header">
+          <div className="header-content">
+            <h1 className="module-title">Reports & Analytics</h1>
+            <p className="module-subtitle">Loading your financial data...</p>
+          </div>
+        </header>
+        <div className="loading-container">
+          <GlobalLoading size="large" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="reports-module">
+        <header className="module-header">
+          <div className="header-content">
+            <h1 className="module-title">Reports & Analytics</h1>
+            <p className="module-subtitle">Error loading financial data</p>
+          </div>
+        </header>
+        <div className="error-container">
+          <p className="error-message">{error}</p>
+          <button onClick={loadReportsData} className="retry-button">
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="reports-module">
       {/* Header */}
       <header className="module-header">
         <div className="header-content">
           <h1 className="module-title">Reports & Analytics</h1>
-          <p className="module-subtitle">Visual insights into your financial data</p>
+          <p className="module-subtitle">Visual insights into your financial data {displayCategoryData.length > 0 ? '(Live Data)' : '(Demo Data)'}</p>
+        </div>
+        <div className="header-actions">
+          <button 
+            onClick={loadReportsData} 
+            className="refresh-button"
+            disabled={loading}
+          >
+            🔄 Refresh Data
+          </button>
         </div>
       </header>
 
@@ -175,7 +365,7 @@ const Reports = () => {
           <div className="summary-card">
             <div className="summary-content">
               <span className="summary-label">Categories</span>
-              <span className="summary-value">{categoryData.length}</span>
+              <span className="summary-value">{displayCategoryData.length}</span>
             </div>
             <div className="summary-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -189,7 +379,7 @@ const Reports = () => {
           <div className="summary-card">
             <div className="summary-content">
               <span className="summary-label">Avg Monthly</span>
-              <span className="summary-value">{formatCurrency(monthlyData.reduce((sum, item) => sum + item.expenses, 0) / monthlyData.length)}</span>
+              <span className="summary-value">{displayMonthlyData.length > 0 ? formatCurrency(displayMonthlyData.reduce((sum, item) => sum + item.expenses, 0) / displayMonthlyData.length) : formatCurrency(0)}</span>
             </div>
             <div className="summary-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -213,7 +403,7 @@ const Reports = () => {
               <p>Breakdown of your spending patterns</p>
             </div>
             
-            {categoryData.length > 0 ? (
+            {displayCategoryData.length > 0 ? (
               <div className="pie-chart-container">
                 <div className="pie-chart">
                   <svg width="200" height="200" viewBox="0 0 200 200">
@@ -232,7 +422,7 @@ const Reports = () => {
                 </div>
                 
                 <div className="pie-legend">
-                  {categoryData.map((item, index) => (
+                  {displayCategoryData.map((item, index) => (
                     <div key={index} className="legend-item">
                       <div 
                         className="legend-color" 
@@ -346,7 +536,7 @@ const Reports = () => {
                 </tr>
               </thead>
               <tbody>
-                {monthlyData.map((item, index) => (
+                {displayMonthlyData.map((item, index) => (
                   <tr key={index}>
                     <td className="month-cell">{item.month} 2024</td>
                     <td className="income-cell">{formatCurrency(item.income)}</td>

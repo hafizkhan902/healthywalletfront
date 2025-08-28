@@ -1,0 +1,309 @@
+/* ===========================
+   GLOBAL LOADING ANIMATION
+   Professional & Minimal Design
+   =========================== */
+
+/* CSS Variables for theming */
+:root {
+  --loading-primary: #4CAF50;
+  --loading-primary-light: rgba(76, 175, 80, 0.2);
+  --loading-background: rgba(255, 255, 255, 0.95);
+  --loading-backdrop: rgba(0, 0, 0, 0.02);
+  --loading-ring: rgba(76, 175, 80, 0.3);
+}
+
+[data-theme="dark"] {
+  --loading-primary: #66BB6A;
+  --loading-primary-light: rgba(102, 187, 106, 0.2);
+  --loading-background: rgba(18, 18, 18, 0.95);
+  --loading-backdrop: rgba(255, 255, 255, 0.02);
+  --loading-ring: rgba(102, 187, 106, 0.3);
+}
+
+/* Base Container Styles */
+.global-loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+}
+
+.global-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--loading-background);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+.global-loading-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Size Variants */
+.global-loading-small {
+  --logo-size: 32px;
+  --ring-size: 48px;
+  --backdrop-size: 64px;
+}
+
+.global-loading-medium {
+  --logo-size: 48px;
+  --ring-size: 72px;
+  --backdrop-size: 96px;
+}
+
+.global-loading-large {
+  --logo-size: 64px;
+  --ring-size: 96px;
+  --backdrop-size: 128px;
+}
+
+/* Logo Container */
+.logo-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--backdrop-size);
+  height: var(--backdrop-size);
+}
+
+/* Logo - Subtle breathing animation */
+.loading-logo {
+  width: var(--logo-size);
+  height: var(--logo-size);
+  object-fit: contain;
+  z-index: 3;
+  position: relative;
+  animation: logoBreath 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 2px 8px var(--loading-primary-light));
+}
+
+/* Rotating Ring - Minimal, professional */
+.loading-ring {
+  position: absolute;
+  width: var(--ring-size);
+  height: var(--ring-size);
+  border: 2px solid transparent;
+  border-top: 2px solid var(--loading-ring);
+  border-radius: 50%;
+  animation: ringRotate 2s linear infinite;
+  z-index: 2;
+}
+
+/* Soft Backdrop - Subtle presence */
+.loading-backdrop {
+  position: absolute;
+  width: var(--backdrop-size);
+  height: var(--backdrop-size);
+  background: radial-gradient(
+    circle at center,
+    var(--loading-backdrop) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  animation: backdropPulse 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* ===========================
+   ANIMATIONS - Minimal & Professional
+   =========================== */
+
+/* Logo Breathing - Subtle scale animation */
+@keyframes logoBreath {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* Ring Rotation - Smooth, continuous */
+@keyframes ringRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Backdrop Pulse - Very subtle */
+@keyframes backdropPulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+/* Overlay Fade In */
+@keyframes overlayFadeIn {
+  from { 
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to { 
+    opacity: 1;
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* ===========================
+   PRESET COMPONENTS
+   =========================== */
+
+/* Inline Loading - Compact for buttons/forms */
+.inline-loading {
+  min-height: auto;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.inline-loading .global-loading-content {
+  margin: 0;
+}
+
+/* Loading Card - For component loading states */
+.loading-card-wrapper {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+[data-theme="dark"] .loading-card-wrapper {
+  background: #1E1E1E;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ===========================
+   RESPONSIVE DESIGN
+   =========================== */
+
+@media (max-width: 768px) {
+  .global-loading-large {
+    --logo-size: 48px;
+    --ring-size: 72px;
+    --backdrop-size: 96px;
+  }
+  
+  .global-loading-medium {
+    --logo-size: 40px;
+    --ring-size: 60px;
+    --backdrop-size: 80px;
+  }
+  
+  .global-loading-overlay {
+    backdrop-filter: blur(8px);
+  }
+}
+
+@media (max-width: 480px) {
+  .global-loading-large {
+    --logo-size: 40px;
+    --ring-size: 60px;
+    --backdrop-size: 80px;
+  }
+  
+  .global-loading-medium {
+    --logo-size: 32px;
+    --ring-size: 48px;
+    --backdrop-size: 64px;
+  }
+}
+
+/* ===========================
+   ACCESSIBILITY
+   =========================== */
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .loading-logo {
+    animation: none;
+    transform: none;
+  }
+  
+  .loading-ring {
+    animation: ringRotateReduced 4s linear infinite;
+  }
+  
+  .loading-backdrop {
+    animation: none;
+    opacity: 0.3;
+  }
+  
+  .global-loading-overlay {
+    animation: none;
+  }
+}
+
+/* Reduced motion ring rotation - slower */
+@keyframes ringRotateReduced {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --loading-primary: #000;
+    --loading-ring: rgba(0, 0, 0, 0.8);
+    --loading-backdrop: rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-theme="dark"] {
+    --loading-primary: #FFF;
+    --loading-ring: rgba(255, 255, 255, 0.8);
+    --loading-backdrop: rgba(255, 255, 255, 0.1);
+  }
+  
+  .loading-logo {
+    filter: none;
+  }
+}
+
+/* ===========================
+   PERFORMANCE OPTIMIZATIONS
+   =========================== */
+
+/* GPU acceleration hints */
+.loading-logo,
+.loading-ring,
+.loading-backdrop {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Prevent layout shifts */
+.global-loading-container,
+.global-loading-overlay {
+  contain: layout style paint;
+}
+
+/* Smooth rendering */
+.logo-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

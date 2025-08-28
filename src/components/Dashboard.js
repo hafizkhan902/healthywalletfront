@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './Dashboard.css';
 import PageAIInsight from './PageAIInsight';
+import GlobalLoading from './GlobalLoading';
+import { useCurrencyFormatter } from '../hooks/useCurrencyFormatter';
 import { useAPI } from '../hooks/useAPI';
 import { reportsAPI } from '../services/api';
 
 const Dashboard = ({ onNavigate }) => {
+  // Currency formatter hook
+  const { format: formatCurrency } = useCurrencyFormatter();
+  
   // State declarations first
   const [financialData, setFinancialData] = useState({
     totalIncome: 0,
@@ -108,7 +113,7 @@ const Dashboard = ({ onNavigate }) => {
   const handleTrendSuccess = useCallback((data) => {
     console.log('✅ Trend Analysis API Response:', data);
     if (data.success && data.data && data.data.length >= 2) {
-      const currentMonth = data.data[1]; // Most recent month
+      // const currentMonth = data.data[1]; // Most recent month (unused for now)
       const previousMonth = data.data[0]; // Previous month
       
       // Update previous month data with real API data
@@ -128,7 +133,7 @@ const Dashboard = ({ onNavigate }) => {
 
   // Fetch trend analysis for month-over-month comparisons
   const { 
-    data: trendApiData
+    // data: trendApiData // Unused - data is processed in handleTrendSuccess callback
   } = useAPI(reportsAPI.getTrendAnalysis, [2], {
     onSuccess: handleTrendSuccess,
     onError: handleTrendError
@@ -206,15 +211,7 @@ const Dashboard = ({ onNavigate }) => {
     return Math.round(savingsScore + goalScore + balanceScore);
   })();
 
-  // Format currency with null/undefined safety
-  const formatCurrency = (amount) => {
-    // Handle null, undefined, or non-numeric values
-    const numericAmount = Number(amount);
-    if (isNaN(numericAmount)) {
-      return '$0.00';
-    }
-    return `$${numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-  };
+  // Currency formatting is now handled by useCurrencyFormatter hook
 
   // Format percentage with null/undefined safety
   const formatPercentage = (value, decimals = 1) => {
@@ -592,8 +589,7 @@ const Dashboard = ({ onNavigate }) => {
     return (
       <div className="dashboard-module">
         <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading your financial dashboard...</p>
+          <GlobalLoading size="large" />
         </div>
       </div>
     );

@@ -244,6 +244,15 @@ const apiRequest = async (endpoint, options = {}) => {
   // Add auth header for protected routes
   if (token && !endpoint.includes('/auth/register') && !endpoint.includes('/auth/login')) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log(`🔑 Adding auth token for ${endpoint}:`, token.substring(0, 20) + '...');
+  } else if (!endpoint.includes('/auth/') && !endpoint.includes('/health')) {
+    console.log(`⚠️ No auth token found for protected endpoint ${endpoint}. User may need to log in.`);
+    
+    // Show user-friendly message for settings endpoints
+    if (endpoint.includes('/settings')) {
+      console.log(`💡 Settings endpoints require authentication. Please log in to sync settings with backend.`);
+      console.log(`📱 App will continue to work with localStorage for offline functionality.`);
+    }
   }
 
   const fullUrl = `${API_BASE_URL}${endpoint}`;
@@ -657,11 +666,49 @@ export const settingsAPI = {
       method: 'PUT',
       body: JSON.stringify({ [key]: value }),
     });
+  },
+
+  // Get currency symbol
+  getCurrencySymbol: async () => {
+    return await apiRequest('/settings/currency-symbol', {
+      method: 'GET',
+    });
+  }
+};
+
+// 🏆 Achievement API
+export const achievementAPI = {
+  // Get all achievements (locked & unlocked) with progress
+  getAllAchievements: async () => {
+    return await apiRequest('/achievements', {
+      method: 'GET',
+    });
+  },
+  
+  // Check for new achievements and unlock them
+  checkAchievements: async () => {
+    return await apiRequest('/achievements/check', {
+      method: 'POST',
+    });
+  },
+  
+  // Get achievement leaderboard
+  getLeaderboard: async (limit = 10) => {
+    return await apiRequest(`/achievements/leaderboard?limit=${limit}`, {
+      method: 'GET',
+    });
+  },
+  
+  // Get user's unlocked achievements only (legacy endpoint)
+  getUserAchievements: async () => {
+    return await apiRequest('/users/achievements', {
+      method: 'GET',
+    });
   }
 };
 
 // Export all APIs
-export default {
+const allAPIs = {
   auth: authAPI,
   user: userAPI,
   income: incomeAPI,
@@ -670,5 +717,8 @@ export default {
   reports: reportsAPI,
   ai: aiAPI,
   system: systemAPI,
-  settings: settingsAPI
+  settings: settingsAPI,
+  achievements: achievementAPI
 };
+
+export default allAPIs;

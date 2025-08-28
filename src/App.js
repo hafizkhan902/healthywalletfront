@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import Income from './components/Income';
@@ -12,6 +13,7 @@ import Profile from './components/Profile';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import BackendStatus from './components/BackendStatus';
+import { LoadingOverlay } from './components/GlobalLoading';
 
 // Import scroll demo for development testing
 if (process.env.NODE_ENV === 'development') {
@@ -69,14 +71,7 @@ const AuthRouter = () => {
 
   // Show loading state while checking authentication
   if (loading) {
-    return (
-      <div className="App loading-state">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading HealthyWallet...</p>
-        </div>
-      </div>
-    );
+    return <LoadingOverlay size="large" />;
   }
 
   // If authenticated, show main app
@@ -105,8 +100,10 @@ const AuthRouter = () => {
 function App() {
   return (
     <AuthProvider>
-      <BackendStatus />
-      <AuthRouter />
+      <CurrencyProvider>
+        <BackendStatus />
+        <AuthRouter />
+      </CurrencyProvider>
     </AuthProvider>
   );
 }

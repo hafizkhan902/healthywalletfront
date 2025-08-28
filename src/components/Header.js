@@ -1,8 +1,25 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Header.css';
 import logo from '../logo.png';
 
 const Header = ({ currentPage, onNavigate, user, onLogout }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const navigationItems = [
     { 
       id: 'dashboard', 
@@ -96,11 +113,24 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
           {/* User Section */}
           <div className="user-section">
             {/* User Profile Dropdown */}
-            <div className="user-profile-dropdown">
+            <div 
+              className="user-profile-dropdown" 
+              ref={dropdownRef}
+              onMouseLeave={() => {
+                // Only hide if not clicked (give a small delay for click interactions)
+                setTimeout(() => {
+                  if (!dropdownRef.current?.matches(':hover')) {
+                    setShowDropdown(false);
+                  }
+                }, 100);
+              }}
+            >
               <button 
                 className={`user-avatar ${currentPage === 'profile' ? 'active' : ''}`}
                 aria-label="User Profile"
                 title="User Profile"
+                onClick={() => setShowDropdown(!showDropdown)}
+                onMouseEnter={() => setShowDropdown(true)}
               >
                 <div className="avatar-placeholder">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -111,7 +141,7 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
               </button>
               
               {/* Dropdown Menu */}
-              <div className="dropdown-menu">
+              <div className={`dropdown-menu ${showDropdown ? 'show' : ''}`}>
                 <div className="dropdown-header">
                   <div className="user-info">
                     <div className="user-name">{user?.name || 'User'}</div>
@@ -122,7 +152,10 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
                 <div className="dropdown-items">
                   <button 
                     className="dropdown-item"
-                    onClick={() => onNavigate('profile')}
+                    onClick={() => {
+                      onNavigate('profile');
+                      setShowDropdown(false);
+                    }}
                     aria-label="Profile"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -133,7 +166,10 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
                   </button>
                   <button 
                     className="dropdown-item"
-                    onClick={() => onNavigate('settings')}
+                    onClick={() => {
+                      onNavigate('settings');
+                      setShowDropdown(false);
+                    }}
                     aria-label="Settings"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -145,7 +181,10 @@ const Header = ({ currentPage, onNavigate, user, onLogout }) => {
                   <div className="dropdown-divider"></div>
                   <button 
                     className="dropdown-item logout-item"
-                    onClick={onLogout}
+                    onClick={() => {
+                      onLogout();
+                      setShowDropdown(false);
+                    }}
                     aria-label="Logout"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

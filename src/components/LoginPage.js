@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { LoadingInline } from './GlobalLoading';
 import './LoginPage.css';
 
 const LoginPage = ({ onBack }) => {
@@ -220,10 +221,7 @@ const LoginPage = ({ onBack }) => {
                   disabled={loading}
                 >
                   {loading ? (
-                    <>
-                      <div className="loading-spinner"></div>
-                      <span>{isLogin ? 'Signing In...' : 'Creating Account...'}</span>
-                    </>
+                    <LoadingInline showMessage={false} />
                   ) : (
                     <>
                       <span>{isLogin ? 'Sign In' : 'Create Account'}</span>

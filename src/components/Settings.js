@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Settings.css';
 import PageAIInsight from './PageAIInsight';
 import { useSettings } from '../hooks/useSettings';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Settings = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -16,16 +17,22 @@ const Settings = () => {
     updateSettings 
   } = useSettings();
 
+  // Use currency context for dynamic currency management
+  const { currency: currentCurrency, updateCurrency, supportedCurrencies, formatCurrency } = useCurrency();
+
   // Track recent saves to prevent state overrides
   const [recentlySaved, setRecentlySaved] = useState(false);
 
   // Local state for form management
-  const [formData, setFormData] = useState({
-    theme: 'light',
-    currency: 'USD',
-    notifications: true,
-    budgetAlerts: true,
-    goalReminders: true
+  const [formData, setFormData] = useState(() => {
+    // Initialize with current currency context if available
+    return {
+      theme: 'light',
+      currency: currentCurrency || 'USD',
+      notifications: true,
+      budgetAlerts: true,
+      goalReminders: true
+    };
   });
 
   // Update form data when settings load from backend (but not during or right after saving)
@@ -33,7 +40,7 @@ const Settings = () => {
     if (settings && !saving && !recentlySaved) {
       const newFormData = {
         theme: settings.theme || 'light',
-        currency: settings.currency || 'USD',
+        currency: settings.currency || currentCurrency || 'USD', // Use current currency context as fallback
         notifications: settings.notifications !== false,
         budgetAlerts: settings.budgetAlerts !== false,
         goalReminders: settings.goalReminders !== false
@@ -41,11 +48,41 @@ const Settings = () => {
       
       console.log('🔄 Updating form data from backend settings:', newFormData);
       console.log('🔄 Full settings object:', settings);
+      console.log('🔄 Current currency context:', currentCurrency);
       setFormData(newFormData);
     } else if (recentlySaved) {
       console.log('⏸️ Skipping form data update - recently saved');
     }
-  }, [settings, saving, recentlySaved]);
+  }, [settings, saving, recentlySaved, currentCurrency]);
+
+  // Also sync form data with currency context when currency changes globally
+  useEffect(() => {
+    if (currentCurrency && !saving && !recentlySaved) {
+      console.log('🔄 Syncing form currency with global currency context:', currentCurrency);
+      setFormData(prev => {
+        // Only update if the currency is actually different
+        if (prev.currency !== currentCurrency) {
+          console.log('🔄 Currency mismatch detected. Updating form:', prev.currency, '→', currentCurrency);
+          return {
+            ...prev,
+            currency: currentCurrency
+          };
+        }
+        return prev;
+      });
+    }
+  }, [currentCurrency, saving, recentlySaved]);
+
+  // Initialize form currency when currency context loads for the first time
+  useEffect(() => {
+    if (currentCurrency && formData.currency === 'USD' && currentCurrency !== 'USD') {
+      console.log('🔄 Initial currency sync from context:', currentCurrency);
+      setFormData(prev => ({
+        ...prev,
+        currency: currentCurrency
+      }));
+    }
+  }, [currentCurrency, formData.currency]);
 
   // Derived state for backward compatibility
   const darkMode = formData.theme === 'dark';
@@ -121,8 +158,18 @@ const Settings = () => {
     handleSettingChange('notifications', enabled);
   };
 
-  const setCurrency = (curr) => {
+  const setCurrency = async (curr) => {
+    console.log('🔄 Setting currency to:', curr);
+    console.log('🔄 Current form currency:', formData.currency);
+    console.log('🔄 Current global currency:', currentCurrency);
+    
+    // Update both local settings and global currency context
     handleSettingChange('currency', curr);
+    
+    // Update global currency context immediately
+    await updateCurrency(curr);
+    
+    console.log('✅ Currency updated globally:', curr);
   };
 
   const setBudgetAlerts = (enabled) => {
@@ -209,7 +256,14 @@ const Settings = () => {
             <div className="setting-item">
               <div className="setting-info">
                 <span className="setting-label">Currency</span>
-                <span className="setting-description">Choose your preferred currency</span>
+                <span className="setting-description">
+                  Choose your preferred currency
+                  {currentCurrency && currentCurrency !== currency && (
+                    <span style={{color: '#f59e0b', fontSize: '12px', marginLeft: '8px'}}>
+                      (Syncing with {currentCurrency}...)
+                    </span>
+                  )}
+                </span>
               </div>
               <select
                 className="setting-select"

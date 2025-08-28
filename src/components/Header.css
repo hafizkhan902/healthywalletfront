@@ -230,6 +230,30 @@
   overflow: visible; /* Ensure dropdown can appear outside */
 }
 
+/* Avatar styles with proper hover and click states */
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  color: #718096;
+  transition: all 0.2s ease;
+}
+
+.dark-theme .avatar-placeholder {
+  background: #4a5568;
+  color: #a0aec0;
+}
+
+.user-avatar:hover .avatar-placeholder {
+  background: #38a169;
+  color: white;
+  transform: scale(1.05);
+}
+
 .user-avatar {
   display: flex;
   align-items: center;
@@ -280,11 +304,10 @@
   color: #1a202c;
 }
 
-/* Dropdown Menu - Fixed Left-Side Positioning */
+/* Dropdown Menu - Click and Hover Support */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 8px);
-  /* Always position to the LEFT of the avatar to prevent off-screen issues */
+  top: calc(100% + 12px);
   right: 0;
   left: auto;
   transform: translateX(-100%);
@@ -296,52 +319,45 @@
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-100%) translateY(-10px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   max-height: 300px;
   overflow: hidden;
   margin: 0;
   box-sizing: border-box;
-  /* Ensure it never goes off-screen */
   max-width: calc(100vw - 32px);
 }
 
+/* Show dropdown when .show class is added (click) or on hover */
+.dropdown-menu.show,
 .user-profile-dropdown:hover .dropdown-menu {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition-delay: 150ms;
+  transform: translateX(-100%) translateY(0);
+  transition-delay: 0ms;
 }
 
+/* Keep dropdown visible when hovering over it */
 .dropdown-menu:hover {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  transform: translateX(-100%) translateY(0);
   transition-delay: 0ms;
 }
 
-/* Prevent dropdown from disappearing too quickly */
-.user-profile-dropdown:not(:hover) .dropdown-menu {
-  transition-delay: 300ms;
-}
-
-.user-profile-dropdown:hover .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition-delay: 150ms;
-}
-
-.dropdown-menu:hover {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition-delay: 0ms;
-}
-
-/* Prevent dropdown from disappearing too quickly */
-.user-profile-dropdown:not(:hover) .dropdown-menu {
-  transition-delay: 300ms;
+/* Add a small bridge area to prevent dropdown from disappearing */
+.user-profile-dropdown::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: 12px;
+  background: transparent;
+  z-index: 999;
 }
 
 /* Desktop positioning - keep left-aligned for better UX */
@@ -349,13 +365,17 @@
   .dropdown-menu {
     right: 0;
     left: auto;
-    transform: translateX(-100%);
     width: 240px;
   }
   
+  .dropdown-menu.show,
   .user-profile-dropdown:hover .dropdown-menu,
   .dropdown-menu:hover {
-    transform: translateX(-100%);
+    transform: translateX(-100%) translateY(0);
+  }
+  
+  .dropdown-menu:not(.show):not(:hover) {
+    transform: translateX(-100%) translateY(-10px);
   }
 }
 
@@ -364,14 +384,18 @@
   .dropdown-menu {
     right: 0;
     left: auto;
-    transform: translateX(-100%);
     width: 220px;
     top: calc(100% + 12px);
   }
   
+  .dropdown-menu.show,
   .user-profile-dropdown:hover .dropdown-menu,
   .dropdown-menu:hover {
-    transform: translateX(-100%);
+    transform: translateX(-100%) translateY(0);
+  }
+  
+  .dropdown-menu:not(.show):not(:hover) {
+    transform: translateX(-100%) translateY(-10px);
   }
 }
 
@@ -379,15 +403,19 @@
   .dropdown-menu {
     right: 0;
     left: auto;
-    transform: translateX(-100%);
     width: 200px;
     font-size: 12px;
     max-width: calc(100vw - 24px);
   }
   
+  .dropdown-menu.show,
   .user-profile-dropdown:hover .dropdown-menu,
   .dropdown-menu:hover {
-    transform: translateX(-100%);
+    transform: translateX(-100%) translateY(0);
+  }
+  
+  .dropdown-menu:not(.show):not(:hover) {
+    transform: translateX(-100%) translateY(-10px);
   }
 }
 
@@ -396,13 +424,17 @@
     /* For very small screens, center it */
     right: 50%;
     left: auto;
-    transform: translateX(50%);
     width: 180px;
   }
   
+  .dropdown-menu.show,
   .user-profile-dropdown:hover .dropdown-menu,
   .dropdown-menu:hover {
-    transform: translateX(50%);
+    transform: translateX(50%) translateY(0);
+  }
+  
+  .dropdown-menu:not(.show):not(:hover) {
+    transform: translateX(50%) translateY(-10px);
   }
 }
 

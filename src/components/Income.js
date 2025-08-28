@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import './Income.css';
 import PageAIInsight from './PageAIInsight';
+import GlobalLoading from './GlobalLoading';
 import { useMutation, usePaginatedAPI } from '../hooks/useAPI';
 import { incomeAPI } from '../services/api';
 import { scrollToForm } from '../utils/scrollUtils';
+import { useCurrencyFormatter } from '../hooks/useCurrencyFormatter';
 
 const Income = () => {
+  // Use global currency formatter
+  const { format: formatCurrency } = useCurrencyFormatter();
+  
   // Fetch income data from backend with pagination
   const {
     data: incomes,
@@ -184,14 +189,7 @@ const Income = () => {
     }, 100);
   };
 
-  // Format currency with safety checks
-  const formatCurrency = (amount) => {
-    const numericAmount = Number(amount);
-    if (isNaN(numericAmount)) {
-      return '$0.00';
-    }
-    return `$${numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-  };
+  // Currency formatting is now handled by useCurrencyFormatter hook
 
   // Format date
   const formatDate = (dateString) => {
@@ -207,8 +205,7 @@ const Income = () => {
     return (
       <div className="income-module">
         <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading your income data...</p>
+          <GlobalLoading size="large" />
         </div>
       </div>
     );

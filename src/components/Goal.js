@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './Goal.css';
 import PageAIInsight from './PageAIInsight';
+import GlobalLoading from './GlobalLoading';
 import { usePaginatedAPI, useMutation } from '../hooks/useAPI';
 import { goalAPI } from '../services/api';
 import { scrollToForm } from '../utils/scrollUtils';
+import { useCurrencyFormatter } from '../hooks/useCurrencyFormatter';
 
 const Goal = () => {
+  // Use global currency formatter
+  const { format: formatCurrency } = useCurrencyFormatter();
+  
   // Goal categories as per backend validation
   const GOAL_CATEGORIES = [
     { value: 'emergency', label: 'Emergency Fund' },
@@ -143,14 +148,7 @@ const Goal = () => {
     });
   };
 
-  // Format currency
-  const formatCurrency = (amount) => {
-    const numericAmount = Number(amount);
-    if (isNaN(numericAmount)) {
-      return '$0.00';
-    }
-    return `$${numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-  };
+  // Currency formatting is now handled by useCurrencyFormatter hook
 
   // Format date
   const formatDate = (dateString) => {
@@ -365,8 +363,7 @@ const Goal = () => {
       {/* Loading State */}
       {goalsLoading && (
         <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading your goals...</p>
+          <GlobalLoading size="large" />
         </div>
       )}
 

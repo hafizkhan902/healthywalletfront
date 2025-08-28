@@ -1,21 +1,85 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { settingsAPI } from '../services/api';
+
+// Circuit breaker for backend requests
+class CircuitBreaker {
+  constructor(failureThreshold = 5, timeout = 60000) {
+    this.failureThreshold = failureThreshold;
+    this.timeout = timeout;
+    this.failureCount = 0;
+    this.lastFailureTime = null;
+    this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+  }
+
+  async call(fn) {
+    if (this.state === 'OPEN') {
+      if (Date.now() - this.lastFailureTime > this.timeout) {
+        this.state = 'HALF_OPEN';
+        console.log('🔄 Circuit breaker: Moving to HALF_OPEN state');
+      } else {
+        throw new Error('Circuit breaker is OPEN - backend temporarily unavailable');
+      }
+    }
+
+    try {
+      const result = await fn();
+      this.onSuccess();
+      return result;
+    } catch (error) {
+      this.onFailure();
+      throw error;
+    }
+  }
+
+  onSuccess() {
+    this.failureCount = 0;
+    this.state = 'CLOSED';
+  }
+
+  onFailure() {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+    
+    if (this.failureCount >= this.failureThreshold) {
+      this.state = 'OPEN';
+      console.log(`🔴 Circuit breaker: OPEN after ${this.failureCount} failures`);
+    }
+  }
+}
+
+// Global circuit breaker instance
+const settingsCircuitBreaker = new CircuitBreaker(3, 30000); // 3 failures, 30 second timeout
 
 export const useSettings = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
+  
+  // Refs to prevent duplicate requests
+  const loadingRef = useRef(false);
+  const migrationRef = useRef(false);
 
   // Load settings from backend
   const loadSettings = useCallback(async () => {
+    // Prevent duplicate loading requests
+    if (loadingRef.current) {
+      console.log('🔄 Settings already loading, skipping duplicate request');
+      return;
+    }
+    
+    loadingRef.current = true;
     setLoading(true);
     setError(null);
     
     console.log('🔄 Loading settings from backend...');
     
+    // Load from localStorage first for instant UI
+    console.log('💾 Loading settings from localStorage for instant UI');
+    loadSettingsFromLocalStorage();
+    
     try {
-      const data = await settingsAPI.getSettings();
+      const data = await settingsCircuitBreaker.call(() => settingsAPI.getSettings());
       setSettings(data);
       console.log('✅ Settings loaded from backend:', data);
     } catch (err) {
@@ -35,6 +99,7 @@ export const useSettings = () => {
       }
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   }, []);
 
@@ -103,8 +168,19 @@ export const useSettings = () => {
     console.log('🔄 Updating settings:', updates);
     console.log('🔄 Current settings before update:', settings);
     
+    // Update localStorage immediately for instant UI response
+    const currentLocalSettings = JSON.parse(localStorage.getItem('healthywallet-settings') || '{}');
+    const updatedLocalSettings = { ...currentLocalSettings, ...updates };
+    localStorage.setItem('healthywallet-settings', JSON.stringify(updatedLocalSettings));
+    
+    // Update state immediately
+    const optimisticSettings = { ...settings, ...updates };
+    setSettings(optimisticSettings);
+    
+    console.log('✅ Settings updated in localStorage (optimistic):', updatedLocalSettings);
+    
     try {
-      const backendResponse = await settingsAPI.updateSettings(updates);
+      const backendResponse = await settingsCircuitBreaker.call(() => settingsAPI.updateSettings(updates));
       console.log('📡 Backend response:', backendResponse);
       
       // Use backend response if it contains the updated settings
@@ -212,11 +288,48 @@ export const useSettings = () => {
 
   // Migrate localStorage settings to backend
   const migrateSettings = useCallback(async () => {
+    
+    // Prevent duplicate migration requests
+    if (migrationRef.current) {
+      console.log('🔄 Migration already in progress, skipping duplicate request');
+      return { migratedFields: [], message: 'Migration already in progress' };
+    }
+    
+    migrationRef.current = true;
     setLoading(true);
     setError(null);
     
     try {
-      const result = await settingsAPI.migrateLocalStorageData();
+      // Collect all localStorage data for migration
+      const localStorageData = {};
+      
+      // Get all healthywallet-related localStorage keys
+      const healthyWalletKeys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('healthywallet-')) {
+          healthyWalletKeys.push(key);
+        }
+      }
+      
+      // Collect the data
+      healthyWalletKeys.forEach(key => {
+        const value = localStorage.getItem(key);
+        if (value !== null) {
+          localStorageData[key] = value;
+        }
+      });
+      
+      console.log('📦 Migrating localStorage data:', Object.keys(localStorageData));
+      
+      // Only attempt migration if there's data to migrate
+      if (Object.keys(localStorageData).length === 0) {
+        console.log('📝 No localStorage data to migrate');
+        return { migratedFields: [], message: 'No data to migrate' };
+      }
+      
+      console.log('📦 Sending localStorage data to backend:', localStorageData);
+      const result = await settingsCircuitBreaker.call(() => settingsAPI.migrateLocalStorageData(localStorageData));
       if (result.settings) {
         setSettings(result.settings);
       }
@@ -227,6 +340,7 @@ export const useSettings = () => {
       throw err;
     } finally {
       setLoading(false);
+      migrationRef.current = false;
     }
   }, []);
 
@@ -237,6 +351,10 @@ export const useSettings = () => {
 
   // Auto-migrate localStorage settings if they exist and backend is available
   useEffect(() => {
+    // Prevent infinite migration attempts by tracking migration state
+    const migrationAttempted = sessionStorage.getItem('healthywallet-migration-attempted');
+    const migrationFailed = sessionStorage.getItem('healthywallet-migration-failed');
+    
     const shouldMigrate = localStorage.getItem('healthywallet-theme') || 
                          localStorage.getItem('healthywallet-currency') ||
                          localStorage.getItem('healthywallet-financial-goals');
@@ -246,18 +364,30 @@ export const useSettings = () => {
     // 2. Settings loaded successfully from backend (not from localStorage fallback)
     // 3. Not currently loading
     // 4. No errors from backend
-    if (shouldMigrate && settings && !loading && !error) {
+    // 5. Migration hasn't been attempted in this session OR it was successful before
+    // 6. Migration hasn't failed multiple times in this session
+    if (shouldMigrate && settings && !loading && !error && !migrationAttempted && !migrationFailed) {
       // Additional check: ensure we actually got data from backend, not localStorage
       const hasBackendConnection = settings.theme !== undefined || settings.currency !== undefined;
       
       if (hasBackendConnection) {
         console.log('🔄 Auto-migrating localStorage settings to backend...');
+        
+        // Mark migration as attempted to prevent infinite loops
+        sessionStorage.setItem('healthywallet-migration-attempted', 'true');
+        
         migrateSettings().then((result) => {
           if (result.migratedFields && result.migratedFields.length > 0) {
             console.log(`✅ Migrated ${result.migratedFields.length} settings to backend`);
+            // Mark migration as successful
+            sessionStorage.setItem('healthywallet-migration-successful', 'true');
           }
         }).catch((error) => {
           console.warn('⚠️ Migration failed, keeping localStorage:', error.message);
+          // Mark migration as failed to prevent retries in this session
+          sessionStorage.setItem('healthywallet-migration-failed', 'true');
+          // Remove the attempted flag so it can be retried in a new session
+          sessionStorage.removeItem('healthywallet-migration-attempted');
         });
       }
     }
