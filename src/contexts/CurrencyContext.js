@@ -126,14 +126,14 @@ export const CurrencyProvider = ({ children }) => {
   // Initialize with saved currency from localStorage for instant UI
   const [currency, setCurrency] = useState(() => {
     const savedCurrency = localStorage.getItem('healthywallet-currency');
-    console.log('🚀 Initializing currency from localStorage:', savedCurrency || 'USD (default)');
+    // Initializing currency from localStorage
     return savedCurrency || 'USD';
   });
   const [symbol, setSymbol] = useState(() => {
     const savedSymbol = localStorage.getItem('healthywallet-currency-symbol');
     const savedCurrency = localStorage.getItem('healthywallet-currency') || 'USD';
     const fallbackSymbol = CURRENCY_SYMBOLS[savedCurrency?.toUpperCase()] || savedCurrency || '$';
-    console.log('🚀 Initializing symbol from localStorage:', savedSymbol || fallbackSymbol);
+    // Initializing symbol from localStorage
     return savedSymbol || fallbackSymbol;
   });
   const [loading, setLoading] = useState(true);
@@ -148,7 +148,7 @@ export const CurrencyProvider = ({ children }) => {
   useEffect(() => {
     const handleCurrencyUpdate = (event) => {
       const { currency: newCurrency, symbol: newSymbol } = event.detail;
-      console.log('🔄 Currency updated from AuthContext:', { currency: newCurrency, symbol: newSymbol });
+      // Currency updated from AuthContext
       
       setCurrency(newCurrency);
       setSymbol(newSymbol);
@@ -168,14 +168,14 @@ export const CurrencyProvider = ({ children }) => {
     setError(null);
     
     try {
-      console.log('🔄 Fetching user currency from backend...');
+      // Fetching user currency from backend...
       
       // First, load from localStorage immediately for instant UI
       const localCurrency = localStorage.getItem('healthywallet-currency');
       const localSymbol = localStorage.getItem('healthywallet-currency-symbol');
       
       if (localCurrency && localSymbol) {
-        console.log('💾 Loading currency from localStorage for instant UI:', { currency: localCurrency, symbol: localSymbol });
+        // Loading currency from localStorage for instant UI
         setCurrency(localCurrency);
         setSymbol(localSymbol);
       }
@@ -186,7 +186,7 @@ export const CurrencyProvider = ({ children }) => {
       if (response.success && response.data) {
         const { currency: backendCurrency, symbol: backendSymbol } = response.data;
         
-        console.log('✅ Currency fetched from backend:', { currency: backendCurrency, symbol: backendSymbol });
+        // Currency fetched from backend
         
         setCurrency(backendCurrency || 'USD');
         setSymbol(backendSymbol || getCurrencySymbol(backendCurrency) || '$');
@@ -198,7 +198,7 @@ export const CurrencyProvider = ({ children }) => {
         throw new Error('Invalid response from currency API');
       }
     } catch (err) {
-      console.log('⚠️ Backend currency fetch failed, using localStorage fallback:', err.message);
+      // Backend currency fetch failed, using localStorage fallback
       
       // Check if it's an authentication error
       const isAuthError = err.message.includes('Not authorized') || 
@@ -213,23 +213,23 @@ export const CurrencyProvider = ({ children }) => {
         setCurrency(fallbackCurrency);
         setSymbol(fallbackSymbol);
         
-        console.log('📱 Using localStorage fallback currency:', { currency: fallbackCurrency, symbol: fallbackSymbol });
+        // Using localStorage fallback currency
       }
       
       if (isAuthError) {
         setError('Authentication required for backend sync');
-        console.log('🔐 Currency will sync with backend after user logs in');
+        // Currency will sync with backend after user logs in
       } else {
         setError('Using offline currency settings');
       }
     } finally {
       setLoading(false);
     }
-  }, []); // Empty dependency array since this function doesn't depend on any props or state
+  }, [currency]); // Include currency dependency
 
   // Update currency (called when user changes settings)
   const updateCurrency = async (newCurrency) => {
-    console.log('🔄 Updating currency to:', newCurrency);
+    // Updating currency
     
     const newSymbol = getCurrencySymbol(newCurrency);
     
@@ -241,7 +241,7 @@ export const CurrencyProvider = ({ children }) => {
     localStorage.setItem('healthywallet-currency', newCurrency);
     localStorage.setItem('healthywallet-currency-symbol', newSymbol);
     
-    console.log('✅ Currency updated:', { currency: newCurrency, symbol: newSymbol });
+    // Currency updated
   };
 
   // Initialize currency on app load

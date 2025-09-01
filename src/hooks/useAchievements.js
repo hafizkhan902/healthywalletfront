@@ -24,18 +24,18 @@ export const useAchievements = () => {
     setError(null);
     
     try {
-      console.log('🏆 Loading achievements from backend...');
+      // Loading achievements from backend...
       const response = await achievementAPI.getAllAchievements();
       
       if (response.success && response.data) {
         setAchievements(response.data.achievements || []);
         setStats(response.data.stats || {});
-        console.log('✅ Achievements loaded from backend:', response.data.achievements?.length || 0, 'achievements');
+        // Achievements loaded from backend
       } else {
         throw new Error('Invalid response from achievements API');
       }
     } catch (err) {
-      console.error('❌ Failed to load achievements:', err);
+      // console.error('❌ Failed to load achievements:', err);
       setError(err.message || 'Failed to load achievements');
       
       // Fallback to empty state
@@ -54,7 +54,7 @@ export const useAchievements = () => {
   // Check for new achievements
   const checkNewAchievements = useCallback(async () => {
     try {
-      console.log('🔍 Checking for new achievements...');
+      // Checking for new achievements...
       
       const response = await achievementAPI.checkAchievements();
       
@@ -62,7 +62,7 @@ export const useAchievements = () => {
         const { newAchievements: newUnlocked, message } = response.data;
         
         if (newUnlocked && newUnlocked.length > 0) {
-          console.log('🎉 New achievements unlocked:', newUnlocked.length);
+          // New achievements unlocked
           setNewAchievements(newUnlocked);
           setShowNotification(true);
           
@@ -75,7 +75,7 @@ export const useAchievements = () => {
         throw new Error('Invalid response from achievement check API');
       }
     } catch (err) {
-      console.error('❌ Failed to check achievements:', err);
+      // console.error('❌ Failed to check achievements:', err);
       return { newAchievements: [], message: 'Failed to check achievements' };
     }
   }, [loadAchievements]);
@@ -83,7 +83,7 @@ export const useAchievements = () => {
   // Get achievement leaderboard
   const getLeaderboard = useCallback(async (limit = 10) => {
     try {
-      console.log('🏅 Loading achievement leaderboard...');
+      // Loading achievement leaderboard...
       
       const response = await achievementAPI.getLeaderboard(limit);
       
@@ -93,7 +93,7 @@ export const useAchievements = () => {
         throw new Error('Invalid response from leaderboard API');
       }
     } catch (err) {
-      console.error('❌ Failed to load leaderboard:', err);
+      // console.error('❌ Failed to load leaderboard:', err);
       return { leaderboard: [], totalUsers: 0 };
     }
   }, []);

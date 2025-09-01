@@ -42,7 +42,7 @@ export const useAPI = (apiCall, dependencies = [], options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [apiCall]);
+  }, [apiCall, onSuccess, onError, transform]);
 
   useEffect(() => {
     if (immediate) {
@@ -163,7 +163,7 @@ export const usePaginatedAPI = (apiCall, initialParams = {}, options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [apiCall]);
+  }, [apiCall, data, onSuccess, onError, params]);
 
   // Load more data (for infinite scroll)
   const loadMore = useCallback(async () => {
@@ -220,7 +220,7 @@ export const usePaginatedAPI = (apiCall, initialParams = {}, options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [apiCall]);
+  }, [apiCall, data, pagination, params]);
 
   useEffect(() => {
     fetchData();

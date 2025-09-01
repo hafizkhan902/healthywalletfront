@@ -7,10 +7,10 @@ import { scrollToForm, smoothScrollTo } from './scrollUtils';
  * Call this from browser console: window.testScrollDemo()
  */
 export const testScrollDemo = () => {
-  console.log('🧪 Testing Scroll Functionality...');
+  // console.log('🧪 Testing Scroll Functionality...');
   
   // Test 1: Scroll to form sections
-  console.log('📍 Test 1: Scrolling to form sections');
+  // console.log('📍 Test 1: Scrolling to form sections');
   
   const formSelectors = [
     '.quick-add-section',
@@ -23,7 +23,7 @@ export const testScrollDemo = () => {
   formSelectors.forEach((selector, index) => {
     const element = document.querySelector(selector);
     if (element) {
-      console.log(`✅ Found ${selector}`);
+      // console.log(`✅ Found ${selector}`);
       
       // Test scroll after delay
       setTimeout(() => {
@@ -31,10 +31,10 @@ export const testScrollDemo = () => {
           block: 'center',
           offset: -50
         });
-        console.log(`📍 Scrolled to ${selector}`);
+        // console.log(`📍 Scrolled to ${selector}`);
       }, index * 2000);
     } else {
-      console.log(`❌ Not found: ${selector}`);
+      // console.log(`❌ Not found: ${selector}`);
     }
   });
 };
@@ -43,7 +43,7 @@ export const testScrollDemo = () => {
  * Test smooth scroll to different positions
  */
 export const testScrollPositions = () => {
-  console.log('🧪 Testing Scroll Positions...');
+  // console.log('🧪 Testing Scroll Positions...');
   
   const tests = [
     { name: 'Top of page', target: 'body', offset: 0 },
@@ -59,7 +59,7 @@ export const testScrollPositions = () => {
           block: 'start',
           offset: test.offset
         });
-        console.log(`📍 Scrolled to ${test.name}`);
+        // console.log(`📍 Scrolled to ${test.name}`);
       }
     }, index * 3000);
   });
@@ -73,9 +73,9 @@ export const addScrollDemoToWindow = () => {
     window.testScrollDemo = testScrollDemo;
     window.testScrollPositions = testScrollPositions;
     
-    console.log('🧪 Scroll demo functions added to window:');
-    console.log('   - window.testScrollDemo()');
-    console.log('   - window.testScrollPositions()');
+    // console.log('🧪 Scroll demo functions added to window:');
+    // console.log('   - window.testScrollDemo()');
+    // console.log('   - window.testScrollPositions()');
   }
 };
 
@@ -84,8 +84,10 @@ if (process.env.NODE_ENV === 'development') {
   addScrollDemoToWindow();
 }
 
-export default {
+const scrollDemo = {
   testScrollDemo,
   testScrollPositions,
   addScrollDemoToWindow
 };
+
+export default scrollDemo;

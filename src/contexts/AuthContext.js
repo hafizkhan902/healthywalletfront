@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { authAPI, settingsAPI } from '../services/api';
-import { LoadingScreen } from '../components/LoadingAnimation';
 
 const AuthContext = createContext();
 
@@ -32,13 +31,13 @@ export const AuthProvider = ({ children }) => {
       const now = Date.now();
       
       if (isCheckingAuth || authInitialized) {
-        console.log('🔄 Auth check already in progress or completed, skipping...');
+        // Auth check already in progress or completed, skipping...
         return;
       }
       
       // Throttle auth checks to max once per 2 seconds
       if (now - lastAuthCheck.current < 2000) {
-        console.log('🔄 Auth check throttled, too soon since last check');
+        // Auth check throttled, too soon since last check
         return;
       }
       
@@ -57,7 +56,7 @@ export const AuthProvider = ({ children }) => {
               setUser(response.data);
               
               // Load user settings for existing authenticated session
-              console.log('🔄 Loading settings for authenticated user on app startup');
+              // Loading settings for authenticated user on app startup
               loadUserSettingsAfterLogin();
             } else {
               // Token invalid, clear storage
@@ -67,7 +66,7 @@ export const AuthProvider = ({ children }) => {
             }
           } catch (error) {
             // Token expired or invalid
-            console.error('Token validation failed:', error);
+            // console.error('Token validation failed:', error);
             authAPI.logout();
             setIsAuthenticated(false);
             setUser(null);
@@ -77,7 +76,7 @@ export const AuthProvider = ({ children }) => {
           setUser(null);
         }
       } catch (error) {
-        console.error('Error checking auth status:', error);
+        // console.error('Error checking auth status:', error);
         authAPI.logout();
         setIsAuthenticated(false);
         setUser(null);
@@ -95,12 +94,12 @@ export const AuthProvider = ({ children }) => {
   // Load user settings immediately after login
   const loadUserSettingsAfterLogin = async () => {
     try {
-      console.log('🔄 Loading user settings after login...');
+      // Loading user settings after login...
       
       // Load general settings
       const settingsResponse = await settingsAPI.getSettings();
       if (settingsResponse.success && settingsResponse.data) {
-        console.log('✅ Settings loaded from backend:', settingsResponse.data);
+        // Settings loaded from backend
         
         // Store all settings in localStorage for offline access
         localStorage.setItem('healthywallet-settings', JSON.stringify(settingsResponse.data));
@@ -108,7 +107,7 @@ export const AuthProvider = ({ children }) => {
         // Extract and store currency settings specifically
         if (settingsResponse.data.currency) {
           localStorage.setItem('healthywallet-currency', settingsResponse.data.currency);
-          console.log('💰 Currency setting loaded:', settingsResponse.data.currency);
+          // Currency setting loaded
         }
       }
       
@@ -116,7 +115,7 @@ export const AuthProvider = ({ children }) => {
       const currencyResponse = await settingsAPI.getCurrencySymbol();
       if (currencyResponse.success && currencyResponse.data) {
         const { currency, symbol } = currencyResponse.data;
-        console.log('✅ Currency symbol loaded from backend:', { currency, symbol });
+        // Currency symbol loaded from backend
         
         // Store currency and symbol in localStorage
         localStorage.setItem('healthywallet-currency', currency);
@@ -129,7 +128,7 @@ export const AuthProvider = ({ children }) => {
       }
       
     } catch (error) {
-      console.warn('⚠️ Failed to load settings after login:', error.message);
+      // console.warn('⚠️ Failed to load settings after login:', error.message);
       // Don't fail login if settings loading fails
     }
   };

@@ -10,15 +10,12 @@ const Settings = () => {
   // Use backend settings hook
   const { 
     settings, 
-    loading, 
-    error, 
     saving, 
-    updateSetting, 
-    updateSettings 
+    updateSetting 
   } = useSettings();
 
   // Use currency context for dynamic currency management
-  const { currency: currentCurrency, updateCurrency, supportedCurrencies, formatCurrency } = useCurrency();
+  const { currency: currentCurrency, updateCurrency } = useCurrency();
 
   // Track recent saves to prevent state overrides
   const [recentlySaved, setRecentlySaved] = useState(false);
@@ -46,23 +43,21 @@ const Settings = () => {
         goalReminders: settings.goalReminders !== false
       };
       
-      console.log('🔄 Updating form data from backend settings:', newFormData);
-      console.log('🔄 Full settings object:', settings);
-      console.log('🔄 Current currency context:', currentCurrency);
+      // Updating form data from backend settings
       setFormData(newFormData);
     } else if (recentlySaved) {
-      console.log('⏸️ Skipping form data update - recently saved');
+      // Skipping form data update - recently saved
     }
   }, [settings, saving, recentlySaved, currentCurrency]);
 
   // Also sync form data with currency context when currency changes globally
   useEffect(() => {
     if (currentCurrency && !saving && !recentlySaved) {
-      console.log('🔄 Syncing form currency with global currency context:', currentCurrency);
+      // Syncing form currency with global currency context
       setFormData(prev => {
         // Only update if the currency is actually different
         if (prev.currency !== currentCurrency) {
-          console.log('🔄 Currency mismatch detected. Updating form:', prev.currency, '→', currentCurrency);
+          // Currency mismatch detected. Updating form
           return {
             ...prev,
             currency: currentCurrency
@@ -76,7 +71,7 @@ const Settings = () => {
   // Initialize form currency when currency context loads for the first time
   useEffect(() => {
     if (currentCurrency && formData.currency === 'USD' && currentCurrency !== 'USD') {
-      console.log('🔄 Initial currency sync from context:', currentCurrency);
+      // Initial currency sync from context
       setFormData(prev => ({
         ...prev,
         currency: currentCurrency
@@ -93,7 +88,7 @@ const Settings = () => {
 
   // Apply theme changes
   useEffect(() => {
-    console.log('🎨 Applying theme:', darkMode ? 'dark' : 'light', 'formData.theme:', formData.theme);
+    // Applying theme
     if (darkMode) {
       document.body.classList.add('dark-theme');
     } else {
@@ -111,7 +106,7 @@ const Settings = () => {
 
   // Handle setting changes
   const handleSettingChange = async (key, value) => {
-    console.log(`🔧 Changing setting ${key} from "${formData[key]}" to "${value}"`);
+    // Changing setting
     
     // Store the current value before updating
     const previousValue = formData[key];
@@ -119,7 +114,7 @@ const Settings = () => {
     // Update local form state immediately for responsive UI
     setFormData(prev => {
       const newState = { ...prev, [key]: value };
-      console.log(`📝 Updated formData:`, newState);
+      // Updated formData
       return newState;
     });
     
@@ -128,20 +123,20 @@ const Settings = () => {
     
     // Update backend
     try {
-      const result = await updateSetting(key, value);
-      console.log(`✅ Setting ${key} updated to:`, value, 'Backend result:', result);
+      await updateSetting(key, value);
+      // Setting updated successfully
       
       // Clear the recently saved flag after a longer delay to allow backend refresh
       setTimeout(() => {
-        console.log('🔓 Clearing recentlySaved flag');
+        // Clearing recentlySaved flag
         setRecentlySaved(false);
       }, 3000); // Extended to 3 seconds to allow backend refresh
     } catch (error) {
-      console.error(`❌ Failed to update ${key}:`, error);
+      // console.error(`❌ Failed to update ${key}:`, error);
       // Revert local state to previous value on error
       setFormData(prev => {
         const revertedState = { ...prev, [key]: previousValue };
-        console.log(`↩️ Reverted formData:`, revertedState);
+        // Reverted formData
         return revertedState;
       });
       // Clear recently saved flag on error too
@@ -159,9 +154,7 @@ const Settings = () => {
   };
 
   const setCurrency = async (curr) => {
-    console.log('🔄 Setting currency to:', curr);
-    console.log('🔄 Current form currency:', formData.currency);
-    console.log('🔄 Current global currency:', currentCurrency);
+    // Setting currency
     
     // Update both local settings and global currency context
     handleSettingChange('currency', curr);
@@ -169,7 +162,7 @@ const Settings = () => {
     // Update global currency context immediately
     await updateCurrency(curr);
     
-    console.log('✅ Currency updated globally:', curr);
+    // Currency updated globally
   };
 
   const setBudgetAlerts = (enabled) => {

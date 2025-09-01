@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import './Profile.css';
 import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../hooks/useSettings';
@@ -14,7 +14,7 @@ const debugPersonalizationData = () => {
     console.group('🔍 Personalization Data Debug');
     
     // Check localStorage
-    console.log('📱 LocalStorage Data:');
+    // LocalStorage Data:
     const localData = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -22,17 +22,12 @@ const debugPersonalizationData = () => {
         localData[key] = localStorage.getItem(key);
       }
     }
-    console.table(localData);
+    // console.table(localData);
     
     // Check sessionStorage migration flags
-    console.log('🔄 Migration Status:');
-    console.log({
-      attempted: sessionStorage.getItem('healthywallet-migration-attempted'),
-      failed: sessionStorage.getItem('healthywallet-migration-failed'),
-      successful: sessionStorage.getItem('healthywallet-migration-successful')
-    });
+    // Migration Status: attempted, failed, successful flags checked internally
     
-    console.groupEnd();
+    // console.groupEnd();
   }
 };
 
@@ -50,8 +45,6 @@ const Profile = () => {
     loading: achievementsLoading, 
     error: achievementsError,
     checkNewAchievements,
-    getUnlockedAchievements,
-    getLockedAchievements,
     newAchievements,
     showNotification,
     dismissNotification
@@ -61,7 +54,7 @@ const Profile = () => {
   const [achievementFilter, setAchievementFilter] = useState('all'); // 'all', 'points', 'completed'
   
   // User profile state
-  const [profileData, setProfileData] = useState({
+  const [profileData] = useState({
     name: user?.name || 'Financial User',
     email: user?.email || 'user@healthywallet.com',
     joinDate: user?.joinDate || new Date().toISOString(),
@@ -134,7 +127,7 @@ const Profile = () => {
 
   // Personalization state - Initialize immediately from localStorage for fast UI
   const [personalizationData, setPersonalizationData] = useState(() => {
-    console.log('🚀 Initializing personalization data from localStorage for instant UI');
+    // Initializing personalization data from localStorage for instant UI
     return loadPersonalizationDataFromStorage();
   });
 
@@ -166,7 +159,7 @@ const Profile = () => {
   // Sync personalization data with loaded settings from backend (only if significantly different)
   useEffect(() => {
     if (settings && Object.keys(settings).length > 0) {
-      console.log('🔄 Checking if backend settings should override localStorage data');
+      // Checking if backend settings should override localStorage data
       
       // Map backend field names back to frontend field names
       const frontendFieldMap = {
@@ -219,26 +212,25 @@ const Profile = () => {
 
       // Only apply changes if there are meaningful differences
       if (hasSignificantChanges && changesCount > 2) {
-        console.log(`✅ Applying ${changesCount} backend updates to personalization data`);
+        // Applying backend updates to personalization data
         setPersonalizationData(updatedPersonalizationData);
       } else if (hasSignificantChanges) {
-        console.log(`📝 Minor backend changes (${changesCount}) detected, keeping localStorage values`);
+        // Minor backend changes detected, keeping localStorage values
       }
     }
-  }, [settings]); // Only depend on settings
+  }, [settings, personalizationData]); // Include personalizationData dependency
 
-  // Debounced backend update function with better error handling
-  const debouncedBackendUpdate = useCallback(
-    debounce(async (updates) => {
+  // Backend update function
+  const backendUpdateFunction = useCallback(async (updates) => {
       // Skip if no updates to process
       if (!updates || Object.keys(updates).length === 0) {
         return;
       }
 
       try {
-        console.log('🔄 Batch updating settings:', updates);
+        // Batch updating settings
         await updateSettings(updates);
-        console.log('✅ Settings batch updated successfully');
+        // Settings batch updated successfully
       } catch (error) {
         // Check if it's a network error (backend offline)
         const isNetworkError = error.message.includes('Failed to fetch') || 
@@ -246,23 +238,27 @@ const Profile = () => {
                               error.message.includes('Network Error');
         
         if (isNetworkError) {
-          console.log('📱 Backend offline - data already saved to localStorage');
+          // Backend offline - data already saved to localStorage
           // Data is already in localStorage from the immediate save, so this is fine
         } else {
-          console.error('❌ Settings update failed with non-network error:', error);
+          // console.error('❌ Settings update failed with non-network error:', error);
           // For non-network errors, ensure localStorage backup
           Object.entries(updates).forEach(([backendField, value]) => {
             try {
               const localStorageKey = `healthywallet-${backendField.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
               localStorage.setItem(localStorageKey, value);
             } catch (storageError) {
-              console.error('Failed to save to localStorage:', storageError);
+              // console.error('Failed to save to localStorage:', storageError);
             }
           });
         }
       }
-    }, 2000), // Increased to 2 seconds to reduce API calls
-    [updateSettings]
+    }, [updateSettings]);
+
+  // Debounced backend update function with better error handling
+  const debouncedBackendUpdate = useMemo(
+    () => debounce(backendUpdateFunction, 2000),
+    [backendUpdateFunction]
   );
 
   // Helper function to update personalization data with debouncing
@@ -319,7 +315,7 @@ const Profile = () => {
       const localStorageKey = `healthywallet-${field.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
       localStorage.setItem(localStorageKey, value);
     } catch (error) {
-      console.error(`Failed to save ${field} to localStorage:`, error);
+      // console.error(`Failed to save ${field} to localStorage:`, error);
     }
   }, [debouncedBackendUpdate]);
 
@@ -1089,7 +1085,7 @@ const Profile = () => {
                   onClick={async () => {
                     try {
                       // Force save all current personalization data
-                      console.log('💾 Manually saving all personalization data...');
+                      // Manually saving all personalization data...
                       
                       // Create batch update with all current data
                       const backendFieldMap = {
@@ -1143,10 +1139,10 @@ const Profile = () => {
 
                       // Show success message
                       alert('✅ Personalization data saved successfully! Our AI will now provide more tailored insights based on your financial profile.');
-                      console.log('✅ All personalization data saved successfully');
+                      // All personalization data saved successfully
                       
                     } catch (error) {
-                      console.error('❌ Failed to save personalization data:', error);
+                      // console.error('❌ Failed to save personalization data:', error);
                       alert('⚠️ Settings saved locally but could not sync to server. Your data is safe and will sync when connection is restored.');
                     }
                   }}

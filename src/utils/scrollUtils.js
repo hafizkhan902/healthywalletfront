@@ -50,7 +50,7 @@ export const smoothScrollTo = (target, options = {}) => {
         }, 300); // Wait for scroll animation to complete
       }
     } else {
-      console.warn('ScrollUtils: Element not found:', target);
+      // console.warn('ScrollUtils: Element not found:', target);
     }
   }, delay);
 };
@@ -156,7 +156,7 @@ export const animatedScrollTo = (targetY, duration = 500) => {
   }
 };
 
-export default {
+const scrollUtils = {
   smoothScrollTo,
   scrollToForm,
   scrollToTop,
@@ -164,3 +164,5 @@ export default {
   isInViewport,
   animatedScrollTo
 };
+
+export default scrollUtils;

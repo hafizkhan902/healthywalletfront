@@ -43,7 +43,7 @@ const Dashboard = ({ onNavigate }) => {
 
   // Memoized callback to prevent re-renders
   const handleDashboardSuccess = useCallback((data) => {
-    console.log('✅ Dashboard API Response:', data);
+    // Dashboard API Response received
     if (data.success && data.data) {
       // Map API response to component state
       const apiData = data.data;
@@ -95,7 +95,7 @@ const Dashboard = ({ onNavigate }) => {
   }, []);
 
   const handleDashboardError = useCallback((error) => {
-    console.error('Failed to fetch dashboard data:', error);
+    // console.error('Failed to fetch dashboard data:', error);
   }, []);
 
   // Fetch real-time dashboard data from backend
@@ -111,7 +111,7 @@ const Dashboard = ({ onNavigate }) => {
 
   // Memoized trend analysis callback
   const handleTrendSuccess = useCallback((data) => {
-    console.log('✅ Trend Analysis API Response:', data);
+    // Trend Analysis API Response received
     if (data.success && data.data && data.data.length >= 2) {
       // const currentMonth = data.data[1]; // Most recent month (unused for now)
       const previousMonth = data.data[0]; // Previous month
@@ -128,13 +128,11 @@ const Dashboard = ({ onNavigate }) => {
   }, []);
 
   const handleTrendError = useCallback((error) => {
-    console.error('Failed to fetch trend analysis:', error);
+    // console.error('Failed to fetch trend analysis:', error);
   }, []);
 
   // Fetch trend analysis for month-over-month comparisons
-  const { 
-    // data: trendApiData // Unused - data is processed in handleTrendSuccess callback
-  } = useAPI(reportsAPI.getTrendAnalysis, [2], {
+  useAPI(reportsAPI.getTrendAnalysis, [2], {
     onSuccess: handleTrendSuccess,
     onError: handleTrendError
   });

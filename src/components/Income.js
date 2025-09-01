@@ -24,7 +24,7 @@ const Income = () => {
     sortOrder: 'desc'
   }, {
     onError: (error) => {
-      console.error('Failed to fetch incomes:', error);
+      // console.error('Failed to fetch incomes:', error);
     }
   });
 
@@ -90,7 +90,7 @@ const Income = () => {
   
   // Debug logging (temporary)
   if (incomesArray.length > 0) {
-    console.log('✅ Income data loaded:', incomesArray.length, 'records');
+    // Income data loaded
   }
   
   const monthlyIncomes = incomesArray.filter(income => 
@@ -130,7 +130,7 @@ const Income = () => {
         await createIncomeAPI(incomeData);
       }
     } catch (error) {
-      console.error('Failed to save income:', error);
+      // console.error('Failed to save income:', error);
       alert('Failed to save income. Please try again.');
     }
   };
@@ -160,7 +160,7 @@ const Income = () => {
       try {
         await deleteIncomeAPI(id);
       } catch (error) {
-        console.error('Failed to delete income:', error);
+        // console.error('Failed to delete income:', error);
         alert('Failed to delete income. Please try again.');
       }
     }

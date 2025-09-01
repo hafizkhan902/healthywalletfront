@@ -8,7 +8,7 @@ export const clearMigrationFlags = () => {
   sessionStorage.removeItem('healthywallet-migration-attempted');
   sessionStorage.removeItem('healthywallet-migration-failed');
   sessionStorage.removeItem('healthywallet-migration-successful');
-  console.log('🧹 Migration flags cleared from sessionStorage');
+  // console.log('🧹 Migration flags cleared from sessionStorage');
 };
 
 /**
@@ -29,7 +29,7 @@ export const getMigrationStatus = () => {
  */
 export const resetMigrationState = () => {
   clearMigrationFlags();
-  console.log('🔄 Migration state reset. Page refresh recommended.');
+  // console.log('🔄 Migration state reset. Page refresh recommended.');
 };
 
 // Make functions available in development console

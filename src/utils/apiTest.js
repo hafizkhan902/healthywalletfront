@@ -15,8 +15,8 @@ export const testBackendConnection = async (baseUrl) => {
     }
   ];
 
-  console.log('🧪 Running Backend Connectivity Tests...');
-  console.log('🔗 Base URL:', baseUrl);
+  // console.log('🧪 Running Backend Connectivity Tests...');
+  // console.log('🔗 Base URL:', baseUrl);
 
   for (const test of tests) {
     try {
@@ -36,23 +36,23 @@ export const testBackendConnection = async (baseUrl) => {
       const response = await fetch(test.url, config);
       const data = await response.text();
       
-      console.log(`✅ ${test.name}:`, {
+      // console.log(`✅ ${test.name}:`, {
         status: response.status,
         ok: response.ok,
         response: data.substring(0, 100) + (data.length > 100 ? '...' : '')
       });
     } catch (error) {
-      console.log(`❌ ${test.name}:`, {
+      // console.log(`❌ ${test.name}:`, {
         error: error.message,
         name: error.name
       });
       
       if (error.message.includes('CORS')) {
-        console.log('💡 CORS Issue Detected! Backend needs CORS configuration.');
+        // console.log('💡 CORS Issue Detected! Backend needs CORS configuration.');
       }
       
       if (error.message.includes('Failed to fetch')) {
-        console.log('💡 Connection Issue! Check if backend server is running.');
+        // console.log('💡 Connection Issue! Check if backend server is running.');
       }
     }
   }

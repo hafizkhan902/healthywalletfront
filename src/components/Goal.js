@@ -20,11 +20,12 @@ const Goal = () => {
     { value: 'other', label: 'Other' }
   ];
 
-  const PRIORITY_LEVELS = [
-    { value: 'low', label: 'Low Priority' },
-    { value: 'medium', label: 'Medium Priority' },
-    { value: 'high', label: 'High Priority' }
-  ];
+  // Priority levels for future use
+  // const PRIORITY_LEVELS = [
+  //   { value: 'low', label: 'Low Priority' },
+  //   { value: 'medium', label: 'Medium Priority' },
+  //   { value: 'high', label: 'High Priority' }
+  // ];
 
   // State for goals summary
   const [goalsSummary, setGoalsSummary] = useState(null);
@@ -53,11 +54,11 @@ const Goal = () => {
 
   // Memoized callbacks for API hooks
   const handleGoalsSuccess = useCallback((data) => {
-    console.log('✅ Goals data loaded:', data);
+    // Goals data loaded
   }, []);
 
   const handleGoalsError = useCallback((error) => {
-    console.error('Failed to fetch goals:', error);
+    // console.error('Failed to fetch goals:', error);
   }, []);
 
   // Fetch goals data from backend with pagination
@@ -132,7 +133,7 @@ const Goal = () => {
         setGoalsSummary(response.data.summary);
       }
     } catch (error) {
-      console.error('Failed to fetch goals summary:', error);
+      // console.error('Failed to fetch goals summary:', error);
     }
   };
 
@@ -192,7 +193,7 @@ const Goal = () => {
         await createGoalAPI(goalData);
       }
     } catch (error) {
-      console.error('Failed to save goal:', error);
+      // console.error('Failed to save goal:', error);
       alert('Failed to save goal. Please try again.');
     }
   };
@@ -219,7 +220,7 @@ const Goal = () => {
 
       await contributeToGoalAPI(selectedGoalId, contribution);
     } catch (error) {
-      console.error('Failed to add contribution:', error);
+      // console.error('Failed to add contribution:', error);
       alert('Failed to add contribution. Please try again.');
     }
   };
@@ -254,7 +255,7 @@ const Goal = () => {
       try {
         await deleteGoalAPI(id);
       } catch (error) {
-        console.error('Failed to delete goal:', error);
+        // console.error('Failed to delete goal:', error);
         alert('Failed to delete goal. Please try again.');
       }
     }

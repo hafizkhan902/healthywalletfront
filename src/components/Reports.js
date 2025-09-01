@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './Reports.css';
 import PageAIInsight from './PageAIInsight';
 import { useCurrencyFormatter } from '../hooks/useCurrencyFormatter';
@@ -11,22 +11,18 @@ const Reports = () => {
   
   // Real data state - loaded from backend APIs
   const [expenseData, setExpenseData] = useState([]);
-  const [incomeData, setIncomeData] = useState([]);
+  // Income data for future use
+  // const [incomeData, setIncomeData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load reports data from backend
-  useEffect(() => {
-    loadReportsData();
-  }, []);
-
-  const loadReportsData = async () => {
+  const loadReportsData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔄 Loading reports data from backend...');
+      // Loading reports data from backend...
 
       // Load dashboard data (has some reports info)
       const dashboardResponse = await reportsAPI.getDashboard();
@@ -54,22 +50,22 @@ const Reports = () => {
           setCategoryData(categoryChartData);
         }
 
-        // Extract income data
-        if (data.recentTransactions?.income) {
-          const income = data.recentTransactions.income.map(inc => ({
-            id: inc._id,
-            amount: inc.amount,
-            source: inc.source,
-            date: inc.date
-          }));
-          setIncomeData(income);
-        }
+        // Extract income data (disabled for now)
+        // if (data.recentTransactions?.income) {
+        //   const income = data.recentTransactions.income.map(inc => ({
+        //     id: inc._id,
+        //     amount: inc.amount,
+        //     source: inc.source,
+        //     date: inc.date
+        //   }));
+        //   setIncomeData(income); // Income data disabled for now
+        // }
       }
 
       // Load trend analysis for monthly data (bar chart)
       const trendResponse = await reportsAPI.getTrendAnalysis(6);
       if (trendResponse.success && trendResponse.data) {
-        console.log('📊 Raw trend data from backend:', trendResponse.data);
+        // Raw trend data from backend
         
         // Backend returns {incomeTrend: [...], expenseTrend: [...], savingsTrend: [...]}
         const { incomeTrend = [], expenseTrend = [], savingsTrend = [] } = trendResponse.data;
@@ -113,14 +109,14 @@ const Reports = () => {
           }))
           .sort((a, b) => new Date(a.month + ' 2025') - new Date(b.month + ' 2025')); // Sort by month
         
-        console.log('📊 Processed monthly trends:', trends);
+        // Processed monthly trends
         setMonthlyData(trends);
       }
 
-      console.log('✅ Reports data loaded successfully');
+      // Reports data loaded successfully
       
     } catch (error) {
-      console.error('❌ Failed to load reports data:', error);
+      // console.error('❌ Failed to load reports data:', error);
       setError('Failed to load reports data. Please try again.');
       
       // Fallback to mock data if API fails
@@ -128,11 +124,16 @@ const Reports = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load reports data from backend
+  useEffect(() => {
+    loadReportsData();
+  }, [loadReportsData]);
 
   // Fallback mock data if backend fails
   const loadMockDataFallback = () => {
-    console.log('📱 Using fallback mock data for reports');
+    // Using fallback mock data for reports
     
     // Mock expense data
     const mockExpenses = [
@@ -145,12 +146,13 @@ const Reports = () => {
     setExpenseData(mockExpenses);
     
     // Mock income data
-    const mockIncome = [
-      { id: 1, amount: 3500.00, source: 'Salary', date: '2024-01-15' },
-      { id: 2, amount: 500.00, source: 'Freelance', date: '2024-01-10' },
-      { id: 3, amount: 1420.00, source: 'Investment', date: '2024-01-05' }
-    ];
-    setIncomeData(mockIncome);
+    // Mock income data (disabled for now)
+    // const mockIncome = [
+    //   { id: 1, amount: 3500.00, source: 'Salary', date: '2024-01-15' },
+    //   { id: 2, amount: 500.00, source: 'Freelance', date: '2024-01-10' },
+    //   { id: 3, amount: 1420.00, source: 'Investment', date: '2024-01-05' }
+    // ];
+    // setIncomeData(mockIncome); // Income data disabled for now
     
     // Mock category data for pie chart
     const totalExpenses = mockExpenses.reduce((sum, exp) => sum + exp.amount, 0);

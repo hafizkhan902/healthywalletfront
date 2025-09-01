@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import './Expense.css';
 import PageAIInsight from './PageAIInsight';
 import GlobalLoading from './GlobalLoading';
@@ -40,7 +40,7 @@ const Expense = () => {
 
   // Memoized callbacks to prevent re-renders
   const handleExpenseError = useCallback((error) => {
-    console.error('Failed to fetch expenses:', error);
+    // console.error('Failed to fetch expenses:', error);
   }, []);
 
   // Fetch expense data from backend with pagination
@@ -133,17 +133,17 @@ const Expense = () => {
   );
   const monthlyTotal = monthlyExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   
-  // Category breakdown with safety checks
-  const categoryTotals = categories.map(categoryObj => {
-    const categoryExpenses = filteredExpenses.filter(exp => exp.category === categoryObj.value);
-    const total = categoryExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-    return { 
-      category: categoryObj.value, 
-      label: categoryObj.label, 
-      total, 
-      count: categoryExpenses.length 
-    };
-  }).filter(item => item.total > 0);
+  // Category breakdown with safety checks (calculated for potential future use)
+  // const categoryTotals = categories.map(categoryObj => {
+  //   const categoryExpenses = filteredExpenses.filter(exp => exp.category === categoryObj.value);
+  //   const total = categoryExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+  //   return { 
+  //     category: categoryObj.value, 
+  //     label: categoryObj.label, 
+  //     total, 
+  //     count: categoryExpenses.length 
+  //   };
+  // }).filter(item => item.total > 0);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -175,7 +175,7 @@ const Expense = () => {
         await createExpenseAPI(expenseData);
       }
     } catch (error) {
-      console.error('Failed to save expense:', error);
+      // console.error('Failed to save expense:', error);
       alert('Failed to save expense. Please try again.');
     }
   };
@@ -206,7 +206,7 @@ const Expense = () => {
       try {
         await deleteExpenseAPI(id);
       } catch (error) {
-        console.error('Failed to delete expense:', error);
+        // console.error('Failed to delete expense:', error);
         alert('Failed to delete expense. Please try again.');
       }
     }

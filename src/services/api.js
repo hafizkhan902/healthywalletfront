@@ -24,12 +24,7 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Debug logging for API URL
-console.log('🔗 API Base URL:', API_BASE_URL);
-console.log('🔧 Environment Variables:', {
-  REACT_APP_BASE_API_URI: process.env.REACT_APP_BASE_API_URI,
-  BASE_API_URI: process.env.BASE_API_URI
-});
+// Debug logging for API URL - removed console.log statements
 
 // Test backend connectivity on startup
 const testConnection = async () => {
@@ -56,15 +51,10 @@ const testConnection = async () => {
       },
       mode: 'cors'
     });
-    console.log('🟢 Backend connectivity test:', response.status === 200 ? 'SUCCESS' : `HTTP ${response.status}`);
-    return true;
+    // Backend connectivity test successful
+    return response.ok;
   } catch (error) {
-    console.log('🔴 Backend connectivity test: FAILED -', error.message);
-    console.log('💡 Possible solutions:');
-    console.log('   1. Check if backend server is running on port 2000');
-    console.log('   2. Verify CORS is enabled on backend with credentials: true');
-    console.log('   3. Check firewall/network settings');
-    console.log('   4. Ensure backend allows your frontend origin');
+    // Backend connectivity test failed
     return false;
   }
 };
@@ -72,8 +62,7 @@ const testConnection = async () => {
 // Run connectivity test on startup
 testConnection().then(success => {
   if (!success) {
-    console.log('🔍 Running comprehensive network diagnostics...');
-    // Run diagnostics after a short delay to avoid overwhelming the console
+    // Run diagnostics after a short delay
     setTimeout(() => {
       runNetworkDiagnostics();
     }, 2000);
@@ -92,8 +81,7 @@ const handleResponse = async (response) => {
     data = { message: await response.text() };
   }
 
-  // Log response for debugging
-  console.log(`📡 Response Status: ${response.status}`, data);
+  // Response received
 
   // Handle non-ok responses
   if (!response.ok) {
@@ -137,23 +125,9 @@ const executeRequest = async (fullUrl, config, retryCount = 0) => {
   const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff
   
   try {
-    console.log('🌐 Making API Request:', {
-      method: config.method || 'GET',
-      url: fullUrl,
-      headers: config.headers,
-      credentials: config.credentials,
-      body: config.body ? 'Present' : 'None',
-      attempt: retryCount + 1
-    });
+    // Making API request
     
-    // Add extra logging for POST requests
-    if (config.method === 'POST') {
-      console.log('📝 POST Request Details:', {
-        contentType: config.headers['Content-Type'],
-        bodyLength: config.body ? config.body.length : 0,
-        hasBody: !!config.body
-      });
-    }
+    // POST request processing
     
     // Create AbortController for request timeout
     const controller = new AbortController();
@@ -166,21 +140,14 @@ const executeRequest = async (fullUrl, config, retryCount = 0) => {
     
     clearTimeout(timeoutId);
     
-    console.log('📡 Response Status:', response.status, response.statusText);
-    console.log('📡 Response Headers:', Object.fromEntries(response.headers.entries()));
+    // Response received
     
     const result = await handleResponse(response);
     
-    console.log('✅ API Response received:', result);
+    // API response processed
     return result;
   } catch (error) {
-    console.error('❌ API Request Error:', {
-      url: fullUrl,
-      error: error.message,
-      type: error.name,
-      stack: error.stack,
-      attempt: retryCount + 1
-    });
+    // API request error occurred
     
     // Check if this is a network error that can be retried
     const isNetworkError = error.name === 'TypeError' && 
@@ -189,30 +156,15 @@ const executeRequest = async (fullUrl, config, retryCount = 0) => {
     const canRetry = (isNetworkError || isTimeoutError) && retryCount < maxRetries;
     
     if (canRetry) {
-      console.log(`🔄 Retrying request in ${retryDelay}ms (attempt ${retryCount + 2}/${maxRetries + 1})`);
+      // Retrying request
       await new Promise(resolve => setTimeout(resolve, retryDelay));
       return executeRequest(fullUrl, config, retryCount + 1);
     }
     
-    // Add more detailed error information
-    console.error('🔍 Error Details:', {
-      errorName: error.name,
-      errorMessage: error.message,
-      isNetworkError,
-      isTimeoutError,
-      timestamp: new Date().toISOString(),
-      finalAttempt: true
-    });
+    // Error details logged internally
     
-    // Provide more specific error messages
+    // Network error handling
     if (isNetworkError) {
-      console.error('🔴 Network Error: Cannot reach backend server');
-      console.error('💡 Troubleshooting:');
-      console.error('   1. Check if backend is running on port 2000');
-      console.error('   2. Check browser console for CORS errors');
-      console.error('   3. Ensure backend CORS allows your origin with credentials');
-      console.error('   4. Check if preflight OPTIONS request is successful');
-      console.error('   5. Verify firewall/network settings');
       throw new Error(`Cannot connect to backend server at ${API_BASE_URL}. Please check if the server is running and CORS is properly configured.`);
     }
     
@@ -244,14 +196,13 @@ const apiRequest = async (endpoint, options = {}) => {
   // Add auth header for protected routes
   if (token && !endpoint.includes('/auth/register') && !endpoint.includes('/auth/login')) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log(`🔑 Adding auth token for ${endpoint}:`, token.substring(0, 20) + '...');
+    // Adding auth token
   } else if (!endpoint.includes('/auth/') && !endpoint.includes('/health')) {
-    console.log(`⚠️ No auth token found for protected endpoint ${endpoint}. User may need to log in.`);
+    // No auth token found for protected endpoint
     
-    // Show user-friendly message for settings endpoints
+    // Settings endpoints require authentication
     if (endpoint.includes('/settings')) {
-      console.log(`💡 Settings endpoints require authentication. Please log in to sync settings with backend.`);
-      console.log(`📱 App will continue to work with localStorage for offline functionality.`);
+      // App will continue to work with localStorage for offline functionality
     }
   }
 

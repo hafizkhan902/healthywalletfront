@@ -15,7 +15,7 @@ class CircuitBreaker {
     if (this.state === 'OPEN') {
       if (Date.now() - this.lastFailureTime > this.timeout) {
         this.state = 'HALF_OPEN';
-        console.log('🔄 Circuit breaker: Moving to HALF_OPEN state');
+        // Circuit breaker: Moving to HALF_OPEN state
       } else {
         throw new Error('Circuit breaker is OPEN - backend temporarily unavailable');
       }
@@ -42,7 +42,7 @@ class CircuitBreaker {
     
     if (this.failureCount >= this.failureThreshold) {
       this.state = 'OPEN';
-      console.log(`🔴 Circuit breaker: OPEN after ${this.failureCount} failures`);
+      // Circuit breaker: OPEN after failures
     }
   }
 }
@@ -64,7 +64,7 @@ export const useSettings = () => {
   const loadSettings = useCallback(async () => {
     // Prevent duplicate loading requests
     if (loadingRef.current) {
-      console.log('🔄 Settings already loading, skipping duplicate request');
+      // Settings already loading, skipping duplicate request
       return;
     }
     
@@ -72,18 +72,18 @@ export const useSettings = () => {
     setLoading(true);
     setError(null);
     
-    console.log('🔄 Loading settings from backend...');
+    // Loading settings from backend...
     
     // Load from localStorage first for instant UI
-    console.log('💾 Loading settings from localStorage for instant UI');
+    // Loading settings from localStorage for instant UI
     loadSettingsFromLocalStorage();
     
     try {
       const data = await settingsCircuitBreaker.call(() => settingsAPI.getSettings());
       setSettings(data);
-      console.log('✅ Settings loaded from backend:', data);
+      // Settings loaded from backend
     } catch (err) {
-      console.log('⚠️ Backend unavailable, falling back to localStorage. Error:', err.message);
+      // Backend unavailable, falling back to localStorage
       
       loadSettingsFromLocalStorage();
       
@@ -93,9 +93,9 @@ export const useSettings = () => {
       
       if (!hasLocalStorage) {
         setError('No settings found in backend or localStorage');
-        console.log('❌ No settings found anywhere');
+        // No settings found anywhere
       } else {
-        console.log('✅ Using localStorage fallback');
+        // Using localStorage fallback
       }
     } finally {
       setLoading(false);
@@ -157,7 +157,7 @@ export const useSettings = () => {
     });
 
     setSettings(localSettings);
-    console.log('✅ Settings loaded from localStorage fallback', Object.keys(localSettings).length, 'fields');
+    // Settings loaded from localStorage fallback
   };
 
   // Update settings
@@ -165,8 +165,7 @@ export const useSettings = () => {
     setSaving(true);
     setError(null);
     
-    console.log('🔄 Updating settings:', updates);
-    console.log('🔄 Current settings before update:', settings);
+    // Updating settings
     
     // Update localStorage immediately for instant UI response
     const currentLocalSettings = JSON.parse(localStorage.getItem('healthywallet-settings') || '{}');
@@ -177,11 +176,11 @@ export const useSettings = () => {
     const optimisticSettings = { ...settings, ...updates };
     setSettings(optimisticSettings);
     
-    console.log('✅ Settings updated in localStorage (optimistic):', updatedLocalSettings);
+    // Settings updated in localStorage (optimistic)
     
     try {
       const backendResponse = await settingsCircuitBreaker.call(() => settingsAPI.updateSettings(updates));
-      console.log('📡 Backend response:', backendResponse);
+      // Backend response received
       
       // Use backend response if it contains the updated settings
       // Otherwise merge with current settings
@@ -189,46 +188,46 @@ export const useSettings = () => {
       if (backendResponse && backendResponse.data) {
         // Backend returned full settings object
         finalSettings = backendResponse.data;
-        console.log('✅ Using full backend response');
+        // Using full backend response
       } else if (backendResponse && typeof backendResponse === 'object') {
         // Backend returned partial/merged settings
         finalSettings = backendResponse;
-        console.log('✅ Using backend response directly');
+        // Using backend response directly
       } else {
         // Backend didn't return settings, merge manually
         finalSettings = { ...settings, ...updates };
-        console.log('✅ Manually merged settings');
+        // Manually merged settings
       }
       
       setSettings(finalSettings);
-      console.log('✅ Settings updated in backend. Final state:', finalSettings);
+      // Settings updated in backend. Final state
       
       // Force refresh settings from backend after update to ensure consistency
       setTimeout(async () => {
         try {
-          console.log('🔄 Refreshing settings from backend to ensure consistency...');
+          // Refreshing settings from backend to ensure consistency...
           const refreshedSettings = await settingsAPI.getSettings();
           if (refreshedSettings && refreshedSettings.data) {
             setSettings(refreshedSettings.data);
-            console.log('✅ Settings refreshed from backend:', refreshedSettings.data);
+            // Settings refreshed from backend
           } else if (refreshedSettings) {
             setSettings(refreshedSettings);
-            console.log('✅ Settings refreshed from backend:', refreshedSettings);
+            // Settings refreshed from backend
           }
         } catch (refreshError) {
-          console.log('⚠️ Failed to refresh settings, keeping current state');
+          // Failed to refresh settings, keeping current state
         }
       }, 500); // Small delay to ensure backend has processed the update
       
       return finalSettings;
     } catch (err) {
-      console.log('⚠️ Backend unavailable, saving to localStorage. Error:', err.message);
+      // Backend unavailable, saving to localStorage
       
       // Always fallback to localStorage when backend fails
       updateLocalStorageSettings(updates);
       const mergedSettings = { ...settings, ...updates };
       setSettings(mergedSettings);
-      console.log('✅ Settings updated in localStorage. Local state:', mergedSettings);
+      // Settings updated in localStorage. Local state
       
       return mergedSettings;
     } finally {
@@ -291,7 +290,7 @@ export const useSettings = () => {
     
     // Prevent duplicate migration requests
     if (migrationRef.current) {
-      console.log('🔄 Migration already in progress, skipping duplicate request');
+      // Migration already in progress, skipping duplicate request
       return { migratedFields: [], message: 'Migration already in progress' };
     }
     
@@ -320,15 +319,15 @@ export const useSettings = () => {
         }
       });
       
-      console.log('📦 Migrating localStorage data:', Object.keys(localStorageData));
+      // Migrating localStorage data
       
       // Only attempt migration if there's data to migrate
       if (Object.keys(localStorageData).length === 0) {
-        console.log('📝 No localStorage data to migrate');
+        // No localStorage data to migrate
         return { migratedFields: [], message: 'No data to migrate' };
       }
       
-      console.log('📦 Sending localStorage data to backend:', localStorageData);
+      // Sending localStorage data to backend
       const result = await settingsCircuitBreaker.call(() => settingsAPI.migrateLocalStorageData(localStorageData));
       if (result.settings) {
         setSettings(result.settings);
@@ -336,7 +335,7 @@ export const useSettings = () => {
       return result;
     } catch (err) {
       setError(err.message);
-      console.error('Failed to migrate settings:', err);
+      // console.error('Failed to migrate settings:', err);
       throw err;
     } finally {
       setLoading(false);
@@ -371,19 +370,19 @@ export const useSettings = () => {
       const hasBackendConnection = settings.theme !== undefined || settings.currency !== undefined;
       
       if (hasBackendConnection) {
-        console.log('🔄 Auto-migrating localStorage settings to backend...');
+        // Auto-migrating localStorage settings to backend...
         
         // Mark migration as attempted to prevent infinite loops
         sessionStorage.setItem('healthywallet-migration-attempted', 'true');
         
         migrateSettings().then((result) => {
           if (result.migratedFields && result.migratedFields.length > 0) {
-            console.log(`✅ Migrated ${result.migratedFields.length} settings to backend`);
+            // Migrated settings to backend
             // Mark migration as successful
             sessionStorage.setItem('healthywallet-migration-successful', 'true');
           }
         }).catch((error) => {
-          console.warn('⚠️ Migration failed, keeping localStorage:', error.message);
+          // console.warn('⚠️ Migration failed, keeping localStorage:', error.message);
           // Mark migration as failed to prevent retries in this session
           sessionStorage.setItem('healthywallet-migration-failed', 'true');
           // Remove the attempted flag so it can be retried in a new session
